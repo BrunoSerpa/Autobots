@@ -12,7 +12,7 @@ import com.autobots.automanager.repositorios.ClienteRepositorio;
 
 @Service
 public class ClienteServico {
-	private static final String naoEncontrado = "Cliente não encontrado";
+	private static final String NAO_ENCONTRADO = "Cliente não encontrado";
 
 	private ClienteRepositorio repositorioCliente;
 	private ClienteConverter conversorCliente;
@@ -24,38 +24,34 @@ public class ClienteServico {
 
 	public ClienteDTO procurar(Long id) {
 		Cliente cliente = repositorioCliente.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(naoEncontrado));
-		ClienteDTO clienteDTO = conversorCliente.convertToDto(cliente);
-		return clienteDTO;
+				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		return conversorCliente.convertToDto(cliente);
 	}
 
 	public List<ClienteDTO> todos() {
 		List<Cliente> clientes = repositorioCliente.findAll();
-		List<ClienteDTO> clientesDTO = conversorCliente.convertToDto(clientes);
-		return clientesDTO;
+		return conversorCliente.convertToDto(clientes);
 	}
 
 	public ClienteDTO cadastro(ClienteDTO clienteDTO) {
 		Cliente cliente = conversorCliente.convertToEntity(clienteDTO);
 		repositorioCliente.save(cliente);
-		ClienteDTO clienteRetornado = conversorCliente.convertToDto(cliente);
-		return clienteRetornado;
+		return conversorCliente.convertToDto(cliente);
 	}
 
 	public ClienteDTO atualizar(Long id, ClienteDTO clienteDTO) {
 		Cliente cliente = repositorioCliente.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(naoEncontrado));
+				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 		Cliente clienteNovo = conversorCliente.convertToEntity(clienteDTO);
 		ClienteAtualizador atualizador = new ClienteAtualizador();
 		atualizador.atualizar(cliente, clienteNovo);
 		repositorioCliente.save(cliente);
-		ClienteDTO clienteRetornado = conversorCliente.convertToDto(cliente);
-		return clienteRetornado;
+		return conversorCliente.convertToDto(cliente);
 	}
 
 	public void excluir(Long id) {
 		repositorioCliente.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(naoEncontrado));
+				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 		repositorioCliente.deleteById(id);
 	}
 }
