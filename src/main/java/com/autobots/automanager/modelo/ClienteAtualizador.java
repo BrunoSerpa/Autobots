@@ -15,10 +15,10 @@ public class ClienteAtualizador {
 		if (!verificador.verificar(atualizacao.getNomeSocial())) {
 			cliente.setNomeSocial(atualizacao.getNomeSocial());
 		}
-		if (!(atualizacao.getDataCadastro() == null)) {
+		if (atualizacao.getDataCadastro() != null) {
 			cliente.setDataCadastro(atualizacao.getDataCadastro());
 		}
-		if (!(atualizacao.getDataNascimento() == null)) {
+		if (atualizacao.getDataNascimento() != null) {
 			cliente.setDataNascimento(atualizacao.getDataNascimento());
 		}
 	}
