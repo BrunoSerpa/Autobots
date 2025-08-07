@@ -21,10 +21,9 @@ public class TelefoneAtualizador {
 	public void atualizar(List<Telefone> telefones, List<Telefone> atualizacoes) {
 		for (Telefone atualizacao : atualizacoes) {
 			for (Telefone telefone : telefones) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == telefone.getId()) {
-						atualizar(telefone, atualizacao);
-					}
+				if (atualizacao.getId() == null) continue;
+				if (atualizacao.getId() == telefone.getId()) {
+					atualizar(telefone, atualizacao);
 				}
 			}
 		}
