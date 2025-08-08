@@ -14,12 +14,16 @@ import com.autobots.automanager.repositorios.ClienteRepositorio;
 public class ClienteServico {
 	private static final String NAO_ENCONTRADO = "Cliente não encontrado";
 
+	private ClienteAtualizador clienteAtualizador;
 	private ClienteRepositorio repositorioCliente;
 	private ClienteConverter conversorCliente;
 
-	public ClienteServico(ClienteRepositorio repositorioCliente, ClienteConverter conversorCliente) {
-		this.repositorioCliente = repositorioCliente;
+	public ClienteServico(ClienteAtualizador clienteAtualizador,
+			ClienteConverter conversorCliente,
+			ClienteRepositorio repositorioCliente) {
+		this.clienteAtualizador = clienteAtualizador;
 		this.conversorCliente = conversorCliente;
+		this.repositorioCliente = repositorioCliente;
 	}
 
 	public ClienteDTO procurar(Long id) {
@@ -34,7 +38,8 @@ public class ClienteServico {
 	}
 
 	public ClienteDTO cadastro(ClienteDTO clienteDTO) {
-		Cliente cliente = conversorCliente.convertToEntity(clienteDTO);
+		Cliente cliente = new Cliente();
+		clienteAtualizador.atualizar(cliente, conversorCliente.convertToEntity(clienteDTO));
 		repositorioCliente.save(cliente);
 		return conversorCliente.convertToDto(cliente);
 	}
@@ -42,16 +47,15 @@ public class ClienteServico {
 	public ClienteDTO atualizar(Long id, ClienteDTO clienteDTO) {
 		Cliente cliente = repositorioCliente.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		Cliente clienteNovo = conversorCliente.convertToEntity(clienteDTO);
-		ClienteAtualizador atualizador = new ClienteAtualizador();
-		atualizador.atualizar(cliente, clienteNovo);
+		clienteAtualizador.atualizar(cliente, conversorCliente.convertToEntity(clienteDTO));
 		repositorioCliente.save(cliente);
 		return conversorCliente.convertToDto(cliente);
 	}
 
 	public void excluir(Long id) {
-		repositorioCliente.findById(id)
+		Cliente cliente = repositorioCliente.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		clienteAtualizador.atualizar(new Cliente(), cliente);
 		repositorioCliente.deleteById(id);
 	}
 }

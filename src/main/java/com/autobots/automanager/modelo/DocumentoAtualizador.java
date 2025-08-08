@@ -1,31 +1,85 @@
 package com.autobots.automanager.modelo;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
+import org.springframework.stereotype.Component;
 import com.autobots.automanager.entidades.Documento;
+import com.autobots.automanager.repositorios.DocumentoRepositorio;
 
+@Component
 public class DocumentoAtualizador {
+	private static String NUMERO_EXISTENTE = "Número de documento já cadastrado";
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();
+
+	private DocumentoRepositorio repositorioDocumento;
+
+	public DocumentoAtualizador(DocumentoRepositorio repositorioDocumento) {
+		this.repositorioDocumento = repositorioDocumento;
+	}
 
 	public void atualizar(Documento documento, Documento atualizacao) {
 		if (atualizacao != null) {
+			if (documento == null) {
+				documento = new Documento();
+			}
 			if (!verificador.verificar(atualizacao.getTipo())) {
 				documento.setTipo(atualizacao.getTipo());
 			}
 			if (!verificador.verificar(atualizacao.getNumero())) {
 				documento.setNumero(atualizacao.getNumero());
 			}
+		} else if (documento != null) {
+			repositorioDocumento.delete(documento);
 		}
 	}
 
 	public void atualizar(List<Documento> documentos, List<Documento> atualizacoes) {
-		for (Documento atualizacao : atualizacoes) {
+		List<Documento> semId = atualizacoes.stream()
+		.filter(documento -> documento.getId() == null)
+		.toList();
+		
+		List<Long> usados = new ArrayList<>();
+		for (Documento atualizacao : atualizacoes.stream()
+				.filter(documento -> documento.getId() != null)
+				.toList()) {
 			for (Documento documento : documentos) {
-				if (atualizacao.getId() == null) continue;
-				if (atualizacao.getId() == documento.getId()) {
+				System.out.println(documento);
+				if (Objects.equals(documento.getId(), atualizacao.getId())) {
 					atualizar(documento, atualizacao);
+					usados.add(documento.getId());
+					break;
 				}
 			}
 		}
+
+		Iterator<Documento> iterador = documentos.iterator();
+		int posicao = 0;
+		while (iterador.hasNext()) {
+			Documento documento = iterador.next();
+			if (usados.contains(documento.getId())) {
+				continue;
+			}
+			if (posicao >= semId.size()) {
+				iterador.remove();
+				repositorioDocumento.delete(documento);
+			} else {
+				atualizar(documento, semId.get(posicao));
+				posicao++;
+			}
+		}
+
+		for (; posicao < semId.size(); posicao++) {
+			try {
+				Documento novo = repositorioDocumento.save(semId.get(posicao));
+				documentos.add(novo);
+				usados.add(novo.getId());
+			} catch (Exception e) {
+				throw new IllegalArgumentException(NUMERO_EXISTENTE);
+			}
+		}
+		repositorioDocumento.saveAll(documentos);
 	}
 }
