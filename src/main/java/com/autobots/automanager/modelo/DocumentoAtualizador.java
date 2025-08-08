@@ -11,7 +11,7 @@ import com.autobots.automanager.repositorios.DocumentoRepositorio;
 
 @Component
 public class DocumentoAtualizador {
-	private static String NUMERO_EXISTENTE = "Número de documento já cadastrado";
+	private static final String NUMERO_EXISTENTE = "Número de documento já cadastrado";
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();
 
 	private DocumentoRepositorio repositorioDocumento;
@@ -46,7 +46,6 @@ public class DocumentoAtualizador {
 				.filter(documento -> documento.getId() != null)
 				.toList()) {
 			for (Documento documento : documentos) {
-				System.out.println(documento);
 				if (Objects.equals(documento.getId(), atualizacao.getId())) {
 					atualizar(documento, atualizacao);
 					usados.add(documento.getId());

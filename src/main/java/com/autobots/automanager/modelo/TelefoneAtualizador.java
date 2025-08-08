@@ -46,7 +46,6 @@ public class TelefoneAtualizador {
 				.filter(telefone -> telefone.getId() != null)
 				.toList()) {
 			for (Telefone telefone : telefones) {
-				System.out.println(telefone);
 				if (Objects.equals(telefone.getId(), atualizacao.getId())) {
 					atualizar(telefone, atualizacao);
 					usados.add(telefone.getId());
