@@ -24,7 +24,6 @@ public class ClienteConverter implements Converter<Cliente, ClienteDTO> {
     private void initializeMapper() {
         if (propertyMapperDto == null) {
             propertyMapperDto = modelMapper.createTypeMap(ClienteDTO.class, Cliente.class);
-            propertyMapperDto.addMappings(mapper -> mapper.skip(Cliente::setId));
         }
 
         if (propertyMapperEntity == null) {
