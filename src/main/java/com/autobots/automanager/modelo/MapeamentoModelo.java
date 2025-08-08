@@ -1,4 +1,4 @@
-package com.autobots.automanager.config;
+package com.autobots.automanager.modelo;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NamingConventions;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ModelMapperConfig {
+public class MapeamentoModelo {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
