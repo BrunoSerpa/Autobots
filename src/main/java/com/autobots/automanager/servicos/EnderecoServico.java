@@ -42,13 +42,13 @@ public class EnderecoServico {
 		return conversorEndereco.convertToDto(enderecos);
 	}
 
-	public EnderecoDTO cadastro(Long id_cliente, EnderecoDTO enderecoDTO) {
-		ClienteDTO cliente = clienteServico.procurar(id_cliente);
+	public EnderecoDTO cadastro(Long idCliente, EnderecoDTO enderecoDTO) {
+		ClienteDTO cliente = clienteServico.procurar(idCliente);
 		if (cliente.getEndereco() != null) {
 			throw new IllegalArgumentException(ENDERECO_EXISTENTE);
 		}
 		cliente.setEndereco(enderecoDTO);
-		clienteServico.atualizar(id_cliente, cliente);
+		clienteServico.atualizar(idCliente, cliente);
 		return cliente.getEndereco();
 	}
 
@@ -59,12 +59,12 @@ public class EnderecoServico {
 		return conversorEndereco.convertToDto(endereco);
 	}
 
-	public void excluir(Long id_cliente) {
-		ClienteDTO cliente = clienteServico.procurar(id_cliente);
+	public void excluir(Long idCliente) {
+		ClienteDTO cliente = clienteServico.procurar(idCliente);
 		if (cliente.getEndereco() == null) {
 			throw new IllegalArgumentException(NAO_ENCONTRADO);
 		}
 		cliente.setEndereco(null);
-		clienteServico.atualizar(id_cliente, cliente);
+		clienteServico.atualizar(idCliente, cliente);
 	}
 }

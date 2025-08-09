@@ -35,9 +35,9 @@ public class EnderecoControle {
 		return ResponseEntity.status(HttpStatus.OK).body(enderecoServico.todos());
 	}
 
-	@PostMapping("/{id_cliente}")
-	public ResponseEntity<Void> cadastroEndereco(@PathVariable Long id_cliente, @RequestBody EnderecoDTO endereco) {
-		enderecoServico.cadastro(id_cliente, endereco);
+	@PostMapping("/{idCliente}")
+	public ResponseEntity<Void> cadastroEndereco(@PathVariable Long idCliente, @RequestBody EnderecoDTO endereco) {
+		enderecoServico.cadastro(idCliente, endereco);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
@@ -46,9 +46,9 @@ public class EnderecoControle {
 		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoServico.atualizar(id, endereco));
 	}
 
-	@DeleteMapping("/{id_cliente}")
-	public ResponseEntity<Void> excluirEndereco(@PathVariable Long id_cliente) {
-		enderecoServico.excluir(id_cliente);
+	@DeleteMapping("/{idCliente}")
+	public ResponseEntity<Void> excluirEndereco(@PathVariable Long idCliente) {
+		enderecoServico.excluir(idCliente);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }
