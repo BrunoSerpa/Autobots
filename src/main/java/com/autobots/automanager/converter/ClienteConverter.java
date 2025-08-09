@@ -38,23 +38,9 @@ public class ClienteConverter implements Converter<Cliente, ClienteDTO> {
     }
 
     @Override
-    public Cliente convertToEntity(ClienteDTO dto, Cliente entity) {
-        initializeMapper();
-        propertyMapperDto.setProvider(p -> entity);
-        return modelMapper.map(dto, Cliente.class);
-    }
-
-    @Override
     public ClienteDTO convertToDto(Cliente entity) {
         initializeMapper();
         return modelMapper.map(entity, ClienteDTO.class);
-    }
-
-    @Override
-    public List<Cliente> convertToEntity(List<ClienteDTO> dtos) {
-        initializeMapper();
-        return modelMapper.map(dtos, new TypeToken<List<Cliente>>() {
-        }.getType());
     }
 
     @Override
