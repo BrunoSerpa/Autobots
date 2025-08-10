@@ -92,6 +92,7 @@ public class ClienteServico {
 	public void excluir(Long id) {
 		Cliente cliente = repositorio.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+
 		atualizador.atualizar(cliente, new Cliente());
 
 		repositorio.deleteById(id);
