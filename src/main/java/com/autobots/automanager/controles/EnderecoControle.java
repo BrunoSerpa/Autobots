@@ -46,9 +46,9 @@ public class EnderecoControle {
 		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoServico.atualizar(id, endereco));
 	}
 
-	@DeleteMapping("/{idCliente}")
-	public ResponseEntity<Void> excluirEndereco(@PathVariable Long idCliente) {
-		enderecoServico.excluir(idCliente);
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> excluirEndereco(@PathVariable Long id) {
+		enderecoServico.excluir(id);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }
