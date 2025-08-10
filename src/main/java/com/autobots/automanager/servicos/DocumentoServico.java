@@ -17,6 +17,7 @@ import com.autobots.automanager.validar.DocumentoValidar;
 @Service
 public class DocumentoServico {
 	private static final String NAO_ENCONTRADO = "Documento não encontrado";
+	private static final String ERRO_ENCONTRADO = "Problemas no Documento:";
 
 	private ClienteServico servicoCliente;
 	private DocumentoAtualizador atualizador;
@@ -54,7 +55,7 @@ public class DocumentoServico {
 		List<String> erros = validar.verificar(documentoDTO);
 		if (!erros.isEmpty()) {
 			StringBuilder mensagem = new StringBuilder();
-			mensagem.append("Falta os dados:");
+			mensagem.append(ERRO_ENCONTRADO);
 			erros.forEach(erro -> mensagem.append("\n").append(erro));
 			throw new IllegalArgumentException(mensagem.toString());
 		}

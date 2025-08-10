@@ -17,6 +17,7 @@ import com.autobots.automanager.validar.TelefoneValidar;
 @Service
 public class TelefoneServico {
 	private static final String NAO_ENCONTRADO = "Telefone não encontrado";
+	private static final String ERRO_ENCONTRADO = "Problemas no Telefone:";
 
 	private ClienteServico servicoCliente;
 	private ClienteRepositorio repositorioCliente;
@@ -54,7 +55,7 @@ public class TelefoneServico {
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
 			StringBuilder mensagem = new StringBuilder();
-			mensagem.append("Falta os dados:");
+			mensagem.append(ERRO_ENCONTRADO);
 			erros.forEach(erro -> mensagem.append("\n").append(erro));
 			throw new IllegalArgumentException(mensagem.toString());
 		}

@@ -18,6 +18,7 @@ import com.autobots.automanager.validar.EnderecoValidar;
 public class EnderecoServico {
 	private static final String NAO_ENCONTRADO = "Endereço não encontrado";
 	private static final String ENDERECO_EXISTENTE = "Cliente possui endereço";
+	private static final String ERRO_ENCONTRADO = "Problemas no endereço:";
 
 	private ClienteServico servicoCliente;
 	private EnderecoAtualizador atualizador;
@@ -55,7 +56,7 @@ public class EnderecoServico {
 		List<String> erros = validar.verificar(enderecoDTO);
 		if (!erros.isEmpty()) {
 			StringBuilder mensagem = new StringBuilder();
-			mensagem.append("Falta os dados:");
+			mensagem.append(ERRO_ENCONTRADO);
 			erros.forEach(erro -> mensagem.append("\n").append(erro));
 			throw new IllegalArgumentException(mensagem.toString());
 		}

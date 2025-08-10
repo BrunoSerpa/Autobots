@@ -38,7 +38,7 @@ public class ClienteValidar implements Validar<ClienteDTO> {
         campos.forEach((nome, fornecedor) -> {
             String valor = fornecedor.get();
             if (NULO.verificar(valor)) {
-                erros.add("- " + nome + ";");
+                erros.add("- Sem " + nome + ";");
             }
         });
 
@@ -49,7 +49,7 @@ public class ClienteValidar implements Validar<ClienteDTO> {
         datas.forEach((nome, fornecedor) -> {
             Date valor = fornecedor.get();
             if (valor == null || NULO.verificar(valor.toString())) {
-                erros.add("- " + nome + ";");
+                erros.add("- Sem " + nome + ";");
             }
         });
 

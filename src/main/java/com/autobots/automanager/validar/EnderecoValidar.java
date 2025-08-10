@@ -31,7 +31,7 @@ public class EnderecoValidar implements Validar<EnderecoDTO> {
         campos.forEach((nome, fornecedor) -> {
             String valor = fornecedor.get();
             if (NULO.verificar(valor)) {
-                erros.add("- " + nome + ";");
+                erros.add("- Sem " + nome + ";");
             }
         });
         return erros;

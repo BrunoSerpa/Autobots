@@ -26,10 +26,10 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
         erros.clear();
 
         if (NULO.verificar(entity.getTipo())) {
-            erros.add("- Tipo;");
+            erros.add("- Sem Tipo;");
         }
         if (NULO.verificar(entity.getNumero())) {
-            erros.add("- Número;");
+            erros.add("- Sem Número;");
         } else if (repositorio.findByNumero(entity.getNumero()).isPresent()) {
             erros.add("- Documento já cadastrado;");
         }
