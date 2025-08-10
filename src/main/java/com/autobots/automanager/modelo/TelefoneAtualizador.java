@@ -3,7 +3,10 @@ package com.autobots.automanager.modelo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
@@ -12,7 +15,7 @@ import com.autobots.automanager.repositorios.TelefoneRepositorio;
 
 @Component
 public class TelefoneAtualizador {
-	private StringVerificadorNulo verificador = new StringVerificadorNulo();
+	private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
 	private TelefoneRepositorio repositorioTelefone;
 
@@ -20,20 +23,35 @@ public class TelefoneAtualizador {
 		this.repositorioTelefone = repositorioTelefone;
 	}
 
-	public void atualizar(Telefone telefone, Telefone atualizacao) {
-		if (atualizacao != null) {
-			if (telefone == null) {
-				telefone = new Telefone();
+	public Telefone atualizar(Telefone telefone, Telefone atualizacao) {
+		if (atualizacao == null) {
+			if (telefone != null) {
+				repositorioTelefone.delete(telefone);
 			}
-			if (!verificador.verificar(atualizacao.getDdd())) {
-				telefone.setDdd(atualizacao.getDdd());
-			}
-			if (!verificador.verificar(atualizacao.getNumero())) {
-				telefone.setNumero(atualizacao.getNumero());
-			}
-		} else if (telefone != null) {
-			repositorioTelefone.delete(telefone);
+			return null;
 		}
+
+		boolean novo = (telefone == null);
+		if (novo) {
+			telefone = new Telefone();
+		}
+
+		Map<Supplier<String>, Consumer<String>> campos = Map.of(
+				atualizacao::getDdd, telefone::setDdd,
+				atualizacao::getNumero, telefone::setNumero);
+
+		campos.forEach((getter, setter) -> {
+			String valor = getter.get();
+			if (!NULO.verificar(valor)) {
+				setter.accept(valor);
+			}
+		});
+
+		if (novo) {
+			return repositorioTelefone.save(telefone);
+		}
+
+		return telefone;
 	}
 
 	public void atualizar(List<Telefone> telefones, List<Telefone> atualizacoes) {
@@ -75,6 +93,5 @@ public class TelefoneAtualizador {
 			telefones.add(novo);
 			usados.add(novo.getId());
 		}
-		repositorioTelefone.saveAll(telefones);
 	}
 }
