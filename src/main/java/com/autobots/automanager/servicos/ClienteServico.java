@@ -59,8 +59,9 @@ public class ClienteServico {
 			throw new IllegalArgumentException(mensagem.toString());
 		}
 
-		Cliente cliente = null;
+		Cliente cliente = new Cliente();
 		atualizador.atualizar(cliente, conversor.convertToEntity(clienteDTO));
+		repositorio.save(cliente);
 
 		return conversor.convertToDto(cliente);
 	}
@@ -91,7 +92,8 @@ public class ClienteServico {
 	public void excluir(Long id) {
 		Cliente cliente = repositorio.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		atualizador.atualizar(new Cliente(), cliente);
+		atualizador.atualizar(cliente, new Cliente());
+
 		repositorio.deleteById(id);
 	}
 }
