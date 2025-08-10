@@ -2,6 +2,7 @@ package com.autobots.automanager.servicos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -71,11 +72,17 @@ public class ClienteServico {
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 
 		List<String> erros = new ArrayList<>();
-		if (cliente.getDocumentos().size() < clienteDTO.getDocumentos().size()) {
-			clienteDTO.getDocumentos().forEach(documento -> erros.addAll(validarDocumento.verificar(documento)));
+		if (cliente.getTelefones().size() < clienteDTO.getTelefones().size()) {
+			clienteDTO.getDocumentos().stream()
+					.filter(documento -> Objects.isNull(documento.getId()))
+					.map(validarDocumento::verificar)
+					.forEach(erros::addAll);
 		}
 		if (cliente.getTelefones().size() < clienteDTO.getTelefones().size()) {
-			clienteDTO.getTelefones().forEach(telefone -> erros.addAll(validarTelefone.verificar(telefone)));
+			clienteDTO.getTelefones().stream()
+					.filter(telefone -> Objects.isNull(telefone.getId()))
+					.map(validarTelefone::verificar)
+					.forEach(erros::addAll);
 		}
 		if (!erros.isEmpty()) {
 			StringBuilder mensagem = new StringBuilder();
