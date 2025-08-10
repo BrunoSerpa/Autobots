@@ -10,61 +10,74 @@ import com.autobots.automanager.dto.EnderecoDTO;
 import com.autobots.automanager.entidades.Endereco;
 import com.autobots.automanager.modelo.EnderecoAtualizador;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
+import com.autobots.automanager.validar.EnderecoValidar;
 
 @Service
 public class EnderecoServico {
 	private static final String NAO_ENCONTRADO = "Endereço não encontrado";
 	private static final String ENDERECO_EXISTENTE = "Cliente possui endereço";
 
-	private ClienteServico clienteServico;
-	private EnderecoAtualizador enderecoAtualizador;
-	private EnderecoRepositorio repositorioEndereco;
-	private EnderecoConverter conversorEndereco;
+	private ClienteServico servicoCliente;
+	private EnderecoAtualizador atualizador;
+	private EnderecoConverter conversor;
+	private EnderecoRepositorio repositorio;
+	private EnderecoValidar validar;
 
-	public EnderecoServico(ClienteServico clienteServico,
-			EnderecoAtualizador enderecoAtualizador,
-			EnderecoConverter conversorEndereco,
-			EnderecoRepositorio repositorioEndereco) {
-		this.clienteServico = clienteServico;
-		this.enderecoAtualizador = enderecoAtualizador;
-		this.conversorEndereco = conversorEndereco;
-		this.repositorioEndereco = repositorioEndereco;
+	public EnderecoServico(ClienteServico servicoCliente,
+			EnderecoAtualizador atualizador,
+			EnderecoConverter conversor,
+			EnderecoRepositorio repositorio,
+			EnderecoValidar validar) {
+		this.servicoCliente = servicoCliente;
+		this.atualizador = atualizador;
+		this.conversor = conversor;
+		this.repositorio = repositorio;
+		this.validar = validar;
 	}
 
 	public EnderecoDTO procurar(Long id) {
-		Endereco endereco = repositorioEndereco.findById(id)
+		Endereco endereco = repositorio.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		return conversorEndereco.convertToDto(endereco);
+		return conversor.convertToDto(endereco);
 	}
 
 	public List<EnderecoDTO> todos() {
-		List<Endereco> enderecos = repositorioEndereco.findAll();
-		return conversorEndereco.convertToDto(enderecos);
+		List<Endereco> enderecos = repositorio.findAll();
+		return conversor.convertToDto(enderecos);
 	}
 
 	public EnderecoDTO cadastro(Long idCliente, EnderecoDTO enderecoDTO) {
-		ClienteDTO cliente = clienteServico.procurar(idCliente);
+		List<String> erros = validar.verificar(enderecoDTO);
+		if (!erros.isEmpty()) {
+			StringBuilder mensagem = new StringBuilder();
+			mensagem.append("Falta os dados:");
+			erros.forEach(erro -> mensagem.append("\n").append(erro));
+			throw new IllegalArgumentException(mensagem.toString());
+		}
+		
+		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 		if (cliente.getEndereco() != null) {
 			throw new IllegalArgumentException(ENDERECO_EXISTENTE);
 		}
+
 		cliente.setEndereco(enderecoDTO);
-		clienteServico.atualizar(idCliente, cliente);
+		servicoCliente.atualizar(idCliente, cliente);
 		return cliente.getEndereco();
 	}
 
 	public EnderecoDTO atualizar(Long id, EnderecoDTO enderecoDTO) {
-		Endereco endereco = repositorioEndereco.findById(id)
+		Endereco endereco = repositorio.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		enderecoAtualizador.atualizar(endereco, conversorEndereco.convertToEntity(enderecoDTO));
-		return conversorEndereco.convertToDto(endereco);
+		atualizador.atualizar(endereco, conversor.convertToEntity(enderecoDTO));
+		return conversor.convertToDto(endereco);
 	}
 
 	public void excluir(Long idCliente) {
-		ClienteDTO cliente = clienteServico.procurar(idCliente);
+		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 		if (cliente.getEndereco() == null) {
 			throw new IllegalArgumentException(NAO_ENCONTRADO);
 		}
 		cliente.setEndereco(null);
-		clienteServico.atualizar(idCliente, cliente);
+		servicoCliente.atualizar(idCliente, cliente);
 	}
 }
