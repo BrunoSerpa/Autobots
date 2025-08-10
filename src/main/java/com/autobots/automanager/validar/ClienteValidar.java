@@ -55,21 +55,21 @@ public class ClienteValidar implements Validar<ClienteDTO> {
         }
 
         List<String> errosEndereco = validarEndereco.verificar(entity.getEndereco());
-        if (errosEndereco.size() != 0) {
+        if (!errosEndereco.isEmpty()) {
             erros.add("- Endereco:");
             errosEndereco.forEach(erro -> erros.add(" " + erro));
         }
 
         for (int index = 0; index < entity.getTelefones().size(); index++) {
             List<String> errosTelefone = validarTelefone.verificar(entity.getTelefones().get(index));
-            if (errosTelefone.size() != 0) {
+            if (!errosTelefone.isEmpty()) {
                 erros.add("- " + (index + 1) + "º Telefone:");
                 errosTelefone.forEach(erro -> erros.add(" " + erro));
             }
         }
         for (int index = 0; index < entity.getDocumentos().size(); index++) {
             List<String> errosTelefone = validarDocumento.verificar(entity.getDocumentos().get(index));
-            if (errosTelefone.size() != 0) {
+            if (!errosTelefone.isEmpty()) {
                 erros.add("- " + (index + 1) + "º Documento:");
                 errosTelefone.forEach(erro -> erros.add(" " + erro));
             }
