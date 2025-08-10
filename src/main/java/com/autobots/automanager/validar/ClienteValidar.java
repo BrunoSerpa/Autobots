@@ -1,9 +1,9 @@
 package com.autobots.automanager.validar;
 
 import java.util.List;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.ClienteDTO;
@@ -42,17 +42,16 @@ public class ClienteValidar implements Validar<ClienteDTO> {
             }
         });
 
-        if (entity.getDataNascimento() == null) {
-            erros.add("- Data Nascimento;");
-        } else if (NULO.verificar(entity.getDataNascimento().toString())) {
-            erros.add("- Data Nascimento;");
-        }
+        Map<String, Supplier<Date>> datas = Map.of(
+                "Data Nascimento", entity::getDataNascimento,
+                "Data Cadastro", entity::getDataCadastro);
 
-        if (entity.getDataCadastro() == null) {
-            erros.add("- Data Cadastro;");
-        } else if (NULO.verificar(entity.getDataCadastro().toString())) {
-            erros.add("- Data Cadastro;");
-        }
+        datas.forEach((nome, fornecedor) -> {
+            Date valor = fornecedor.get();
+            if (valor == null ? true : NULO.verificar(valor.toString())) {
+                erros.add("- " + nome + ";");
+            }
+        });
 
         List<String> errosEndereco = validarEndereco.verificar(entity.getEndereco());
         if (!errosEndereco.isEmpty()) {
