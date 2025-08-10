@@ -54,7 +54,7 @@ public class EnderecoServico {
 			erros.forEach(erro -> mensagem.append("\n").append(erro));
 			throw new IllegalArgumentException(mensagem.toString());
 		}
-		
+
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 		if (cliente.getEndereco() != null) {
 			throw new IllegalArgumentException(ENDERECO_EXISTENTE);
