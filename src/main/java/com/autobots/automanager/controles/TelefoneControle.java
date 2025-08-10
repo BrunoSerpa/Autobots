@@ -47,7 +47,7 @@ public class TelefoneControle {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> excluirTelefone(@PathVariable Long idCliente, @PathVariable Long id) {
+	public ResponseEntity<Void> excluirTelefone(@PathVariable Long id) {
 		telefoneServico.excluir(id);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
