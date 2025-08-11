@@ -42,10 +42,6 @@ public class ClienteAtualizador {
 		cliente.setNomeSocial(atualizacao.getNomeSocial());
 		cliente.setDataNascimento(atualizacao.getDataNascimento());
 
-		if (cliente.getDataCadastro() == null) {
-			cliente.setDataCadastro(atualizacao.getDataCadastro());
-		}
-
 		cliente.setEndereco(atualizadorEndereco.atualizar(cliente.getEndereco(), atualizacao.getEndereco()));
 
 		atualizadorDocumento.atualizar(cliente.getDocumentos(), atualizacao.getDocumentos());
