@@ -32,7 +32,6 @@ public class EnderecoAtualizador {
 
 		Map<Supplier<String>, Consumer<String>> campos = Map.of(
 				atualizacao::getCidade, endereco::setCidade,
-				atualizacao::getBairro, endereco::setBairro,
 				atualizacao::getRua, endereco::setRua,
 				atualizacao::getNumero, endereco::setNumero);
 
@@ -45,6 +44,7 @@ public class EnderecoAtualizador {
 
 		endereco.setEstado(atualizacao.getEstado());
 		endereco.setBairro(atualizacao.getBairro());
+		endereco.setCodigoPostal(atualizacao.getCodigoPostal());
 		endereco.setInformacoesAdicionais(atualizacao.getInformacoesAdicionais());
 
 		if (novo) {

@@ -1,9 +1,6 @@
 package com.autobots.automanager.validar;
 
 import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.ClienteDTO;
@@ -43,27 +40,12 @@ public class ClienteValidar implements Validar<ClienteDTO> {
             return erros;
         }
 
-        Map<String, Supplier<String>> campos = Map.of(
-                "Nome", entity::getNome,
-                "Nome Social", entity::getNomeSocial);
+        if (NULO.verificar(entity.getNome()))
+            erros.add("- Sem Nome;");
+        
+        if (entity.getDataNascimento() == null || NULO.verificar(entity.getDataNascimento().toString()))
+            erros.add("- Sem Data Cadastro;");
 
-        campos.forEach((nome, fornecedor) -> {
-            String valor = fornecedor.get();
-            if (NULO.verificar(valor)) {
-                erros.add("- Sem " + nome + ";");
-            }
-        });
-
-        Map<String, Supplier<Date>> datas = Map.of(
-                "Data Nascimento", entity::getDataNascimento,
-                "Data Cadastro", entity::getDataCadastro);
-
-        datas.forEach((nome, fornecedor) -> {
-            Date valor = fornecedor.get();
-            if (valor == null || NULO.verificar(valor.toString())) {
-                erros.add("- Sem " + nome + ";");
-            }
-        });
 
         List<String> errosEndereco = validarEndereco.verificar(entity.getEndereco());
         if (!errosEndereco.isEmpty()) {
@@ -78,6 +60,7 @@ public class ClienteValidar implements Validar<ClienteDTO> {
                 errosTelefone.forEach(erro -> erros.add(" " + erro));
             }
         }
+
         for (int index = 0; index < entity.getDocumentos().size(); index++) {
             List<String> errosTelefone = validarDocumento.verificar(entity.getDocumentos().get(index));
             if (!errosTelefone.isEmpty()) {

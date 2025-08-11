@@ -16,6 +16,6 @@ public class Telefone {
 	private Long id;
 	@Column
 	private String ddd;
-	@Column
+	@Column(nullable = false)
 	private String numero;
 }

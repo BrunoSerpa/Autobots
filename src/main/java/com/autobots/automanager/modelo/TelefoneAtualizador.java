@@ -47,6 +47,11 @@ public class TelefoneAtualizador {
 			}
 		});
 
+		telefone.setDdd(atualizacao.getDdd());
+
+		if (!NULO.verificar(atualizacao.getNumero()))
+			telefone.setNumero(atualizacao.getNumero());
+
 		if (novo) {
 			return repositorioTelefone.save(telefone);
 		}

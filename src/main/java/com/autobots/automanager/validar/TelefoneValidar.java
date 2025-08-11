@@ -34,16 +34,9 @@ public class TelefoneValidar implements Validar<TelefoneDTO> {
             return erros;
         }
 
-        Map<String, Supplier<String>> campos = Map.of(
-                "DDD", entity::getDdd,
-                "Numero", entity::getNumero);
-
-        campos.forEach((nome, fornecedor) -> {
-            String valor = fornecedor.get();
-            if (NULO.verificar(valor)) {
-                erros.add("- Sem " + nome + ";");
-            }
-        });
+        if (NULO.verificar(entity.getNumero())) {
+            erros.add("- Sem Numero;");
+        }
 
         return erros;
     }

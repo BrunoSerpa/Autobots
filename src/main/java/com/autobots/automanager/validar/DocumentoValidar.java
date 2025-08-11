@@ -32,9 +32,6 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
             return erros;
         }
 
-        if (NULO.verificar(entity.getTipo())) {
-            erros.add("- Sem Tipo;");
-        }
         if (NULO.verificar(entity.getNumero())) {
             erros.add("- Sem Número;");
         } else if (repositorio.findByNumero(entity.getNumero()).isPresent()) {

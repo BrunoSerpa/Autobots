@@ -1,9 +1,5 @@
 package com.autobots.automanager.modelo;
 
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import org.springframework.stereotype.Component;
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
@@ -40,23 +36,14 @@ public class ClienteAtualizador {
 			cliente = new Cliente();
 		}
 
-		Map<Supplier<String>, Consumer<String>> campos = Map.of(
-				atualizacao::getNome, cliente::setNome,
-				atualizacao::getNomeSocial, cliente::setNomeSocial);
+		if (!NULO.verificar(atualizacao.getNome()))
+			cliente.setNome(atualizacao.getNome());
 
-		campos.forEach((getter, setter) -> {
-			String valor = getter.get();
-			if (!NULO.verificar(valor)) {
-				setter.accept(valor);
-			}
-		});
+		cliente.setNomeSocial(atualizacao.getNomeSocial());
+		cliente.setDataNascimento(atualizacao.getDataNascimento());
 
 		if (cliente.getDataCadastro() == null) {
 			cliente.setDataCadastro(atualizacao.getDataCadastro());
-		}
-
-		if (atualizacao.getDataNascimento() != null) {
-			cliente.setDataNascimento(atualizacao.getDataNascimento());
 		}
 
 		cliente.setEndereco(atualizadorEndereco.atualizar(cliente.getEndereco(), atualizacao.getEndereco()));

@@ -37,8 +37,7 @@ public class EnderecoValidar implements Validar<EnderecoDTO> {
         Map<String, Supplier<String>> campos = Map.of(
                 "Cidade", entity::getCidade,
                 "Rua", entity::getRua,
-                "Numero", entity::getNumero,
-                "Código Postal", entity::getCodigoPostal);
+                "Numero", entity::getNumero);
 
         campos.forEach((nome, fornecedor) -> {
             String valor = fornecedor.get();

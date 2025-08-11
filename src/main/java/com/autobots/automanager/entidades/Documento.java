@@ -16,6 +16,6 @@ public class Documento {
 	private Long id;
 	@Column
 	private String tipo;
-	@Column(unique = true)
+	@Column(unique = true, nullable = false)
 	private String numero;
 }

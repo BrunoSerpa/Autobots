@@ -21,13 +21,13 @@ public class Cliente {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column
+	@Column(nullable = false)
 	private String nome;
 	@Column
 	private String nomeSocial;
 	@Column
 	private Date dataNascimento;
-	@Column
+	@Column(nullable = false)
 	private Date dataCadastro;
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<Documento> documentos = new ArrayList<>();
@@ -35,5 +35,4 @@ public class Cliente {
 	private Endereco endereco;
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<Telefone> telefones = new ArrayList<>();
-
 }

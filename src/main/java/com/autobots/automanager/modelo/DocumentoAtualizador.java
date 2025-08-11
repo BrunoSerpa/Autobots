@@ -3,10 +3,7 @@ package com.autobots.automanager.modelo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 import com.autobots.automanager.entidades.Documento;
@@ -36,16 +33,10 @@ public class DocumentoAtualizador {
 			documento = new Documento();
 		}
 
-		Map<Supplier<String>, Consumer<String>> campos = Map.of(
-				atualizacao::getTipo, documento::setTipo,
-				atualizacao::getNumero, documento::setNumero);
+		documento.setTipo(atualizacao.getTipo());
 
-		campos.forEach((getter, setter) -> {
-			String valor = getter.get();
-			if (!NULO.verificar(valor)) {
-				setter.accept(valor);
-			}
-		});
+		if (!NULO.verificar(atualizacao.getNumero()))
+			documento.setNumero(atualizacao.getNumero());
 
 		if (novo) {
 			try {
