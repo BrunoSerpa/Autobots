@@ -42,10 +42,6 @@ public class ClienteValidar implements Validar<ClienteDTO> {
 
         if (NULO.verificar(entity.getNome()))
             erros.add("- Sem Nome;");
-        
-        if (entity.getDataNascimento() == null || NULO.verificar(entity.getDataNascimento().toString()))
-            erros.add("- Sem Data Cadastro;");
-
 
         List<String> errosEndereco = validarEndereco.verificar(entity.getEndereco());
         if (!errosEndereco.isEmpty()) {
