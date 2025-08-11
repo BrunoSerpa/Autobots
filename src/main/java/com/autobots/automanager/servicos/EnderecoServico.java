@@ -16,7 +16,8 @@ import com.autobots.automanager.validar.EnderecoValidar;
 
 @Service
 public class EnderecoServico {
-	private static final String NAO_ENCONTRADO = "Endereço não encontrado";
+	private static final String NAO_ENCONTRADO = "Endereço não encontrado.";
+	private static final String SEM_ID = "Endereço não possui ID.";
 	private static final String ENDERECO_EXISTENTE = "Cliente possui endereço";
 	private static final String ERRO_ENCONTRADO = "Problemas no endereço:";
 
@@ -68,13 +69,24 @@ public class EnderecoServico {
 		}
 
 		cliente.setEndereco(enderecoDTO);
-		servicoCliente.atualizar(idCliente, cliente);
+		servicoCliente.atualizar(cliente);
 
 		return cliente.getEndereco();
 	}
 
-	public EnderecoDTO atualizar(Long id, EnderecoDTO enderecoDTO) {
-		Endereco endereco = repositorio.findById(id)
+	public EnderecoDTO atualizar(EnderecoDTO enderecoDTO) {
+		if (enderecoDTO.getId() == null)
+			throw new IllegalArgumentException(SEM_ID);
+
+		List<String> erros = validar.verificar(enderecoDTO);
+		if (!erros.isEmpty()) {
+			StringBuilder mensagem = new StringBuilder();
+			mensagem.append(ERRO_ENCONTRADO);
+			erros.forEach(erro -> mensagem.append("\n").append(erro));
+			throw new IllegalArgumentException(mensagem.toString());
+		}
+
+		Endereco endereco = repositorio.findById(enderecoDTO.getId())
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 
 		atualizador.atualizar(endereco, conversor.convertToEntity(enderecoDTO));

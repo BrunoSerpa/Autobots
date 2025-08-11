@@ -1,8 +1,6 @@
 package com.autobots.automanager.servicos;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -17,7 +15,8 @@ import com.autobots.automanager.validar.TelefoneValidar;
 
 @Service
 public class ClienteServico {
-	private static final String NAO_ENCONTRADO = "Cliente não encontrado";
+	private static final String NAO_ENCONTRADO = "Cliente não encontrado.";
+	private static final String SEM_ID = "Cliente não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Cliente:";
 
 	private ClienteAtualizador atualizador;
@@ -68,29 +67,22 @@ public class ClienteServico {
 		return conversor.convertToDto(cliente);
 	}
 
-	public ClienteDTO atualizar(Long id, ClienteDTO clienteDTO) {
-		Cliente cliente = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+	public ClienteDTO atualizar(ClienteDTO clienteDTO) {
+		if (clienteDTO.getId() == null)
+			throw new IllegalArgumentException(SEM_ID);
 
-		List<String> erros = new ArrayList<>();
-		if (cliente.getTelefones().size() < clienteDTO.getTelefones().size()) {
-			clienteDTO.getDocumentos().stream()
-					.filter(documento -> Objects.isNull(documento.getId()))
-					.map(validarDocumento::verificar)
-					.forEach(erros::addAll);
-		}
-		if (cliente.getTelefones().size() < clienteDTO.getTelefones().size()) {
-			clienteDTO.getTelefones().stream()
-					.filter(telefone -> Objects.isNull(telefone.getId()))
-					.map(validarTelefone::verificar)
-					.forEach(erros::addAll);
-		}
+		List<String> erros = validar.verificar(clienteDTO);
+		clienteDTO.getDocumentos().forEach(documento -> validarDocumento.verificar(documento));
+		clienteDTO.getTelefones().forEach(telefone -> validarTelefone.verificar(telefone));
 		if (!erros.isEmpty()) {
 			StringBuilder mensagem = new StringBuilder();
 			mensagem.append(ERRO_ENCONTRADO);
 			erros.forEach(erro -> mensagem.append("\n").append(erro));
 			throw new IllegalArgumentException(mensagem.toString());
 		}
+
+		Cliente cliente = repositorio.findById(clienteDTO.getId())
+				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 
 		atualizador.atualizar(cliente, conversor.convertToEntity(clienteDTO));
 		repositorio.save(cliente);

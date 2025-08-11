@@ -16,7 +16,8 @@ import com.autobots.automanager.validar.TelefoneValidar;
 
 @Service
 public class TelefoneServico {
-	private static final String NAO_ENCONTRADO = "Telefone não encontrado";
+	private static final String NAO_ENCONTRADO = "Telefone não encontrado.";
+	private static final String SEM_ID = "Telefone não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Telefone:";
 
 	private ClienteServico servicoCliente;
@@ -63,13 +64,24 @@ public class TelefoneServico {
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 
 		cliente.getTelefones().add(telefoneDTO);
-		servicoCliente.atualizar(idCliente, cliente);
+		servicoCliente.atualizar(cliente);
 
 		return cliente.getTelefones().get(cliente.getTelefones().size() - 1);
 	}
 
-	public TelefoneDTO atualizar(Long id, TelefoneDTO telefoneDTO) {
-		Telefone telefone = repositorio.findById(id)
+	public TelefoneDTO atualizar(TelefoneDTO telefoneDTO) {
+		if (telefoneDTO.getId() == null)
+			throw new IllegalArgumentException(SEM_ID);
+
+		List<String> erros = validar.verificar(telefoneDTO);
+		if (!erros.isEmpty()) {
+			StringBuilder mensagem = new StringBuilder();
+			mensagem.append(ERRO_ENCONTRADO);
+			erros.forEach(erro -> mensagem.append("\n").append(erro));
+			throw new IllegalArgumentException(mensagem.toString());
+		}
+
+		Telefone telefone = repositorio.findById(telefoneDTO.getId())
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 
 		atualizador.atualizar(telefone, conversor.convertToEntity(telefoneDTO));

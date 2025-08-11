@@ -41,9 +41,9 @@ public class EnderecoControle {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<EnderecoDTO> atualizarEndereco(@PathVariable Long id, @RequestBody EnderecoDTO endereco) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoServico.atualizar(id, endereco));
+	@PutMapping
+	public ResponseEntity<EnderecoDTO> atualizarEndereco(@RequestBody EnderecoDTO endereco) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoServico.atualizar(endereco));
 	}
 
 	@DeleteMapping("/{id}")

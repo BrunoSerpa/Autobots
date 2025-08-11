@@ -25,6 +25,13 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
     public List<String> verificar(DocumentoDTO entity) {
         erros.clear();
 
+        if (entity.getId() != null) {
+            if (repositorio.findById(entity.getId()).isPresent()) {
+                erros.add("- Documento não cadastrado;");
+            }
+            return erros;
+        }
+
         if (NULO.verificar(entity.getTipo())) {
             erros.add("- Sem Tipo;");
         }

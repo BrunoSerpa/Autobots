@@ -41,9 +41,9 @@ public class DocumentoControle {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<DocumentoDTO> atualizarDocumento(@PathVariable Long id, @RequestBody DocumentoDTO documento) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(documentoServico.atualizar(id, documento));
+	@PutMapping
+	public ResponseEntity<DocumentoDTO> atualizarDocumento(@RequestBody DocumentoDTO documento) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(documentoServico.atualizar(documento));
 	}
 
 	@DeleteMapping("/{id}")

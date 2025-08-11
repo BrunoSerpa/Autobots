@@ -41,9 +41,9 @@ public class ClienteControle {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable Long id, @RequestBody ClienteDTO cliente) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(clienteServico.atualizar(id, cliente));
+	@PutMapping
+	public ResponseEntity<ClienteDTO> atualizarCliente(@RequestBody ClienteDTO cliente) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(clienteServico.atualizar(cliente));
 	}
 
 	@DeleteMapping("/{id}")

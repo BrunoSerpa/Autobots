@@ -16,7 +16,8 @@ import com.autobots.automanager.validar.DocumentoValidar;
 
 @Service
 public class DocumentoServico {
-	private static final String NAO_ENCONTRADO = "Documento não encontrado";
+	private static final String NAO_ENCONTRADO = "Documento não encontrado.";
+	private static final String SEM_ID = "Documento não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Documento:";
 
 	private ClienteServico servicoCliente;
@@ -63,13 +64,24 @@ public class DocumentoServico {
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 
 		cliente.getDocumentos().add(documentoDTO);
-		servicoCliente.atualizar(idCliente, cliente);
+		servicoCliente.atualizar(cliente);
 
 		return cliente.getDocumentos().get(cliente.getDocumentos().size() - 1);
 	}
 
-	public DocumentoDTO atualizar(Long id, DocumentoDTO documentoDTO) {
-		Documento documento = repositorio.findById(id)
+	public DocumentoDTO atualizar(DocumentoDTO documentoDTO) {
+		if (documentoDTO.getId() == null)
+			throw new IllegalArgumentException(SEM_ID);
+
+		List<String> erros = validar.verificar(documentoDTO);
+		if (!erros.isEmpty()) {
+			StringBuilder mensagem = new StringBuilder();
+			mensagem.append(ERRO_ENCONTRADO);
+			erros.forEach(erro -> mensagem.append("\n").append(erro));
+			throw new IllegalArgumentException(mensagem.toString());
+		}
+
+		Documento documento = repositorio.findById(documentoDTO.getId())
 				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
 
 		atualizador.atualizar(documento, conversor.convertToEntity(documentoDTO));

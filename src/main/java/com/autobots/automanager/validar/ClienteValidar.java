@@ -8,21 +8,25 @@ import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.modelo.StringVerificadorNulo;
+import com.autobots.automanager.repositorios.ClienteRepositorio;
 
 @Component
 public class ClienteValidar implements Validar<ClienteDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
     private List<String> erros;
+    private ClienteRepositorio repositorio;
     private DocumentoValidar validarDocumento;
     private EnderecoValidar validarEndereco;
     private TelefoneValidar validarTelefone;
 
     public ClienteValidar(List<String> erros,
+            ClienteRepositorio repositorio,
             DocumentoValidar validarDocumento,
             EnderecoValidar validarEndereco,
             TelefoneValidar validarTelefone) {
         this.erros = erros;
+        this.repositorio = repositorio;
         this.validarDocumento = validarDocumento;
         this.validarEndereco = validarEndereco;
         this.validarTelefone = validarTelefone;
@@ -31,6 +35,14 @@ public class ClienteValidar implements Validar<ClienteDTO> {
     @Override
     public List<String> verificar(ClienteDTO entity) {
         erros.clear();
+
+        if (entity.getId() != null) {
+            if (!repositorio.findById(entity.getId()).isPresent()) {
+                erros.add("- Cliente não cadastrado;");
+            }
+            return erros;
+        }
+
         Map<String, Supplier<String>> campos = Map.of(
                 "Nome", entity::getNome,
                 "Nome Social", entity::getNomeSocial);

@@ -41,9 +41,9 @@ public class TelefoneControle {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<TelefoneDTO> atualizarTelefone(@PathVariable Long id, @RequestBody TelefoneDTO telefone) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(telefoneServico.atualizar(id, telefone));
+	@PutMapping
+	public ResponseEntity<TelefoneDTO> atualizarTelefone(@RequestBody TelefoneDTO telefone) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(telefoneServico.atualizar(telefone));
 	}
 
 	@DeleteMapping("/{id}")
