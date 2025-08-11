@@ -36,6 +36,10 @@ public class TelefoneAtualizador {
 			telefone = new Telefone();
 		}
 
+		if (telefone == null) {
+			return null;
+		}
+
 		Map<Supplier<String>, Consumer<String>> campos = Map.of(
 				atualizacao::getDdd, telefone::setDdd,
 				atualizacao::getNumero, telefone::setNumero);

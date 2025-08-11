@@ -32,6 +32,10 @@ public class DocumentoAtualizador {
 		if (novo) {
 			documento = new Documento();
 		}
+		
+		if (documento == null) {
+			return null;
+		}
 
 		documento.setTipo(atualizacao.getTipo());
 

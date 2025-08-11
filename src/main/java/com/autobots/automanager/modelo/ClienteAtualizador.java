@@ -36,6 +36,10 @@ public class ClienteAtualizador {
 			cliente = new Cliente();
 		}
 
+		if (cliente == null) {
+			return null;
+		}
+
 		if (!NULO.verificar(atualizacao.getNome()))
 			cliente.setNome(atualizacao.getNome());
 

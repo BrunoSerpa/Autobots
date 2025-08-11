@@ -30,6 +30,10 @@ public class EnderecoAtualizador {
 			endereco = new Endereco();
 		}
 
+		if (endereco == null) {
+			return null;
+		}
+
 		Map<Supplier<String>, Consumer<String>> campos = Map.of(
 				atualizacao::getCidade, endereco::setCidade,
 				atualizacao::getRua, endereco::setRua,
