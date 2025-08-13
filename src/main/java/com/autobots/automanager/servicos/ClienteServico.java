@@ -1,100 +1,130 @@
 package com.autobots.automanager.servicos;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.autobots.automanager.converter.ClienteConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.modelo.ClienteAtualizador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.validar.ClienteValidar;
-import com.autobots.automanager.validar.DocumentoValidar;
-import com.autobots.automanager.validar.TelefoneValidar;
 
+import lombok.extern.slf4j.Slf4j;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Service
 public class ClienteServico {
 	private static final String NAO_ENCONTRADO = "Cliente não encontrado.";
-	private static final String SEM_ID = "Cliente não possui ID.";
+	private static final String ID_INVALIDO = "ID não informado ou inválido.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Cliente:";
 
-	private ClienteAtualizador atualizador;
-	private ClienteConverter conversor;
-	private ClienteRepositorio repositorio;
-	private ClienteValidar validar;
-	private DocumentoValidar validarDocumento;
-	private TelefoneValidar validarTelefone;
+	private final ClienteAtualizador atualizador;
+	private final ClienteConverter conversor;
+	private final ClienteRepositorio repositorio;
+	private final ClienteValidar validar;
 
 	public ClienteServico(ClienteAtualizador atualizador,
 			ClienteConverter conversor,
 			ClienteRepositorio repositorio,
-			ClienteValidar validar,
-			DocumentoValidar validarDocumento,
-			TelefoneValidar validarTelefone) {
+			ClienteValidar validar) {
 		this.atualizador = atualizador;
 		this.conversor = conversor;
 		this.repositorio = repositorio;
 		this.validar = validar;
-		this.validarDocumento = validarDocumento;
-		this.validarTelefone = validarTelefone;
 	}
 
 	public ClienteDTO procurar(Long id) {
-		Cliente cliente = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		return conversor.convertToDto(cliente);
+		if (id == null || id <= 0) {
+			log.warn("ID inválido: {}", id);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, ID_INVALIDO);
+		}
+		return repositorio.findById(id)
+				.map(conversor::convertToDto)
+				.orElseThrow(() -> {
+					log.warn("Cliente não encontrado: id={}", id);
+					return new ResponseStatusException(
+							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 	}
 
 	public List<ClienteDTO> todos() {
-		List<Cliente> clientes = repositorio.findAll();
-		return conversor.convertToDto(clientes);
+		return repositorio.findAll()
+				.stream()
+				.map(conversor::convertToDto)
+				.collect(Collectors.toList());
 	}
 
-	public ClienteDTO cadastro(ClienteDTO clienteDTO) {
-		List<String> erros = validar.verificar(clienteDTO);
+	public ClienteDTO cadastro(@Valid ClienteDTO dto) {
+		List<String> erros = validar.verificar(dto);
+
 		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+			String detalhes = String.join("", erros);
+			log.warn("Dados inválidos no cadastro: {}", detalhes);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					ERRO_ENCONTRADO + "\n" + detalhes);
 		}
 
-		Cliente cliente = new Cliente();
-		atualizador.atualizar(cliente, conversor.convertToEntity(clienteDTO));
-		repositorio.save(cliente);
-
-		return conversor.convertToDto(cliente);
+		Cliente entidade = conversor.convertToEntity(dto);
+		Cliente salvo = repositorio.save(entidade);
+		log.info("Cliente cadastrado: id={}", salvo.getId());
+		return conversor.convertToDto(salvo);
 	}
 
-	public ClienteDTO atualizar(ClienteDTO clienteDTO) {
-		if (clienteDTO.getId() == null)
-			throw new IllegalArgumentException(SEM_ID);
-
-		List<String> erros = validar.verificar(clienteDTO);
-		clienteDTO.getDocumentos().forEach(documento -> validarDocumento.verificar(documento));
-		clienteDTO.getTelefones().forEach(telefone -> validarTelefone.verificar(telefone));
-		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+	public ClienteDTO atualizar(@Valid ClienteDTO dto) {
+		Long id = dto.getId();
+		if (id == null || id <= 0) {
+			log.warn("ID inválido ao atualizar: {}", id);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
-		Cliente cliente = repositorio.findById(clienteDTO.getId())
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		List<String> erros = validar.verificar(dto);
 
-		atualizador.atualizar(cliente, conversor.convertToEntity(clienteDTO));
-		repositorio.save(cliente);
-		return conversor.convertToDto(cliente);
+		if (!erros.isEmpty()) {
+			String detalhes = String.join("; ", erros);
+			log.warn("Dados inválidos na atualização: {}", detalhes);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					ERRO_ENCONTRADO + " " + detalhes);
+		}
+
+		Cliente existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Cliente não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(
+							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
+
+		atualizador.atualizar(existente, conversor.convertToEntity(dto));
+		Cliente salvo = repositorio.save(existente);
+		log.info("Cliente atualizado: id={}", salvo.getId());
+		return conversor.convertToDto(salvo);
 	}
 
 	public void excluir(Long id) {
-		Cliente cliente = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		if (id == null || id <= 0) {
+			log.warn("ID inválido ao excluir: {}", id);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, ID_INVALIDO);
+		}
 
-		atualizador.atualizar(cliente, new Cliente());
+		boolean existe = repositorio.existsById(id);
+		if (!existe) {
+			log.warn("Cliente não encontrado ao excluir: id={}", id);
+			throw new ResponseStatusException(
+					HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+		}
 
 		repositorio.deleteById(id);
+		log.info("Cliente excluído: id={}", id);
 	}
 }
