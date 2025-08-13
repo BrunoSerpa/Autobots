@@ -1,5 +1,6 @@
 package com.autobots.automanager.validar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -12,21 +13,19 @@ import com.autobots.automanager.repositorios.DocumentoRepositorio;
 public class DocumentoValidar implements Validar<DocumentoDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private List<String> erros;
     private DocumentoRepositorio repositorio;
 
     public DocumentoValidar(List<String> erros,
             DocumentoRepositorio repositorio) {
-        this.erros = erros;
         this.repositorio = repositorio;
     }
 
     @Override
     public List<String> verificar(DocumentoDTO entity) {
-        erros.clear();
+        List<String> erros = new ArrayList<>();
 
-        if (entity.getId() != null) {
-            if (repositorio.findById(entity.getId()).isPresent()) {
+        if (entity.getId() != null) { 
+            if (!repositorio.findById(entity.getId()).isPresent()) {
                 erros.add("- Documento não cadastrado;");
             }
             return erros;
@@ -36,6 +35,21 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
             erros.add("- Sem Número;");
         } else if (repositorio.findByNumero(entity.getNumero()).isPresent()) {
             erros.add("- Documento já cadastrado;");
+        }
+
+        return erros;
+    }
+
+    @Override
+    public List<String> verificar(List<DocumentoDTO> entities) {
+        List<String> erros = new ArrayList<>();
+
+        for (int index = 0; entities.size() > index; index++) {
+            List<String> erroDocumento = verificar(entities.get(index));
+            if (!erroDocumento.isEmpty()) {
+                erros.add("- " + (index + 1) + "º Documento:");
+                erros.addAll(erroDocumento);
+            }
         }
 
         return erros;

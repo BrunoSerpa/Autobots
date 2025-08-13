@@ -1,5 +1,6 @@
 package com.autobots.automanager.validar;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -14,21 +15,18 @@ import com.autobots.automanager.repositorios.EnderecoRepositorio;
 public class EnderecoValidar implements Validar<EnderecoDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private List<String> erros;
     private EnderecoRepositorio repositorio;
 
-    public EnderecoValidar(List<String> erros,
-            EnderecoRepositorio repositorio) {
-        this.erros = erros;
+    public EnderecoValidar(EnderecoRepositorio repositorio) {
         this.repositorio = repositorio;
     }
 
     @Override
     public List<String> verificar(EnderecoDTO entity) {
-        erros.clear();
+        List<String> erros = new ArrayList<>();
 
         if (entity.getId() != null) {
-            if (repositorio.findById(entity.getId()).isPresent()) {
+            if (!repositorio.findById(entity.getId()).isPresent()) {
                 erros.add("- Endereço não cadastrado;");
             }
             return erros;
@@ -45,6 +43,22 @@ public class EnderecoValidar implements Validar<EnderecoDTO> {
                 erros.add("- Sem " + nome + ";");
             }
         });
+        return erros;
+    }
+
+    @Override
+    public List<String> verificar(List<EnderecoDTO> entities) {
+        List<String> erros = new ArrayList<>();
+
+        for (int index = 0; entities.size() > index; index++) {
+            List<String> erroEndereco = verificar(entities.get(index));
+            if (!erroEndereco.isEmpty()) {
+                erros.add("- " + (index + 1) + "º Endereço:");
+                erros.addAll(erroEndereco);
+            }
+
+        }
+
         return erros;
     }
 }
