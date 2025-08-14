@@ -12,6 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 public class Cliente {
@@ -28,8 +31,14 @@ public class Cliente {
 	@Column
 	private Date dataNascimento;
 
-	@Column(nullable = false)
-	private Date dataCadastro = new Date();
+	@Column(nullable = false, updatable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dataCadastro;
+
+	@PrePersist
+	protected void prePersist() {
+		this.dataCadastro = new Date();
+	}
 
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<Documento> documentos = new ArrayList<>();
