@@ -25,20 +25,17 @@ public class TelefoneAtualizador {
 
 	public Telefone atualizar(Telefone telefone, Telefone atualizacao) {
 		if (atualizacao == null) {
-			if (telefone != null) {
+			if (telefone != null)
 				repositorioTelefone.delete(telefone);
-			}
 			return null;
 		}
 
 		boolean novo = (telefone == null);
-		if (novo) {
+		if (novo)
 			telefone = new Telefone();
-		}
 
-		if (telefone == null) {
+		if (telefone == null)
 			return null;
-		}
 
 		Map<Supplier<String>, Consumer<String>> campos = Map.of(
 				atualizacao::getDdd, telefone::setDdd,
@@ -56,14 +53,18 @@ public class TelefoneAtualizador {
 		if (!NULO.verificar(atualizacao.getNumero()))
 			telefone.setNumero(atualizacao.getNumero());
 
-		if (novo) {
+		if (novo)
 			return repositorioTelefone.save(telefone);
-		}
 
 		return telefone;
 	}
 
 	public void atualizar(List<Telefone> telefones, List<Telefone> atualizacoes) {
+		if (atualizacoes == null)
+			atualizacoes = new ArrayList<>();
+		if (telefones == null)
+			telefones = new ArrayList<>();
+
 		List<Telefone> semId = atualizacoes.stream()
 				.filter(telefone -> telefone.getId() == null)
 				.toList();
@@ -87,8 +88,7 @@ public class TelefoneAtualizador {
 			Telefone telefone = iterador.next();
 			if (usados.contains(telefone.getId())) {
 				continue;
-			}
-			if (posicao >= semId.size()) {
+			} else if (posicao >= semId.size()) {
 				iterador.remove();
 				repositorioTelefone.delete(telefone);
 			} else {

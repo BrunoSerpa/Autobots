@@ -32,7 +32,7 @@ public class DocumentoAtualizador {
 		if (novo) {
 			documento = new Documento();
 		}
-		
+
 		if (documento == null) {
 			return null;
 		}
@@ -54,6 +54,11 @@ public class DocumentoAtualizador {
 	}
 
 	public void atualizar(List<Documento> documentos, List<Documento> atualizacoes) {
+		if (atualizacoes == null)
+			atualizacoes = new ArrayList<>();
+		if (documentos == null)
+			documentos = new ArrayList<>();
+
 		List<Documento> semId = atualizacoes.stream()
 				.filter(documento -> documento.getId() == null)
 				.toList();
