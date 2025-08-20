@@ -105,6 +105,12 @@ public class EnderecoServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
+		Endereco existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Endereço não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
+
 		List<String> erros = validar.verificar(dto);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
@@ -113,12 +119,6 @@ public class EnderecoServico {
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
-
-		Endereco existente = repositorio.findById(id)
-				.orElseThrow(() -> {
-					log.warn("Endereço não encontrado ao atualizar: id={}", id);
-					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
-				});
 
 		atualizador.atualizar(existente, conversor.convertToEntity(dto));
 		Endereco salvo = repositorio.save(existente);

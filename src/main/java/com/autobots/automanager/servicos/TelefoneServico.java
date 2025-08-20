@@ -102,6 +102,12 @@ public class TelefoneServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
 		}
 
+		Telefone existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Telefone não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
+
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
@@ -110,12 +116,6 @@ public class TelefoneServico {
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
-
-		Telefone existente = repositorio.findById(id)
-				.orElseThrow(() -> {
-					log.warn("Telefone não encontrado ao atualizar: id={}", id);
-					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
-				});
 
 		atualizador.atualizar(existente, conversor.convertToEntity(telefoneDTO));
 		Telefone salvo = repositorio.save(existente);

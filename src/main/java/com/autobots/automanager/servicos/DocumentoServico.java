@@ -101,6 +101,12 @@ public class DocumentoServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
 		}
 
+		Documento existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Documento não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
+
 		List<String> erros = validar.verificar(documentoDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
@@ -109,12 +115,6 @@ public class DocumentoServico {
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
-
-		Documento existente = repositorio.findById(id)
-				.orElseThrow(() -> {
-					log.warn("Documento não encontrado ao atualizar: id={}", id);
-					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
-				});
 
 		atualizador.atualizar(existente, conversor.convertToEntity(documentoDTO));
 		Documento salvo = repositorio.save(existente);
