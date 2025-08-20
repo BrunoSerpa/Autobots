@@ -1,9 +1,5 @@
 package com.autobots.automanager.servicos;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.autobots.automanager.converter.TelefoneConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.dto.TelefoneDTO;
@@ -14,18 +10,29 @@ import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.repositorios.TelefoneRepositorio;
 import com.autobots.automanager.validar.TelefoneValidar;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Service
 public class TelefoneServico {
 	private static final String NAO_ENCONTRADO = "Telefone não encontrado.";
+	private static final String ID_INVALIDO = "ID não informado ou inválido.";
 	private static final String SEM_ID = "Telefone não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Telefone:";
 
-	private ClienteServico servicoCliente;
-	private ClienteRepositorio repositorioCliente;
-	private TelefoneAtualizador atualizador;
-	private TelefoneConverter conversor;
-	private TelefoneRepositorio repositorio;
-	private TelefoneValidar validar;
+	private final ClienteServico servicoCliente;
+	private final TelefoneAtualizador atualizador;
+	private final TelefoneConverter conversor;
+	private final TelefoneRepositorio repositorio;
+	private final ClienteRepositorio repositorioCliente;
+	private final TelefoneValidar validar;
 
 	public TelefoneServico(ClienteServico servicoCliente,
 			ClienteRepositorio repositorioCliente,
@@ -42,64 +49,104 @@ public class TelefoneServico {
 	}
 
 	public TelefoneDTO procurar(Long id) {
-		Telefone telefone = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		return conversor.convertToDto(telefone);
+		if (id == null || id <= 0) {
+			log.warn("ID inválido na procura de telefone: {}", id);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
+		}
+
+		return repositorio.findById(id)
+				.map(conversor::convertToDto)
+				.orElseThrow(() -> {
+					log.warn("Telefone não encontrado ao procurar: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 	}
 
 	public List<TelefoneDTO> todos() {
-		List<Telefone> telefones = repositorio.findAll();
-		return conversor.convertToDto(telefones);
+		return repositorio.findAll()
+				.stream()
+				.map(conversor::convertToDto)
+				.collect(Collectors.toList());
 	}
 
-	public TelefoneDTO cadastro(Long idCliente, TelefoneDTO telefoneDTO) {
+	public TelefoneDTO cadastro(Long idCliente, @Valid TelefoneDTO telefoneDTO) {
+		if (idCliente == null || idCliente <= 0) {
+			log.warn("ID de cliente inválido no cadastro de telefone: {}", idCliente);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
+		}
+
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+			String detalhes = String.join("; ", erros);
+			log.warn("Dados inválidos no cadastro de telefone: {}", detalhes);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					ERRO_ENCONTRADO + " " + detalhes);
 		}
 
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
-
 		cliente.getTelefones().add(telefoneDTO);
 		servicoCliente.atualizar(cliente);
 
-		return cliente.getTelefones().get(cliente.getTelefones().size() - 1);
+		TelefoneDTO criado = cliente.getTelefones()
+				.get(cliente.getTelefones().size() - 1);
+		log.info("Telefone cadastrado: idCliente={}, idTelefone={}",
+				idCliente, criado.getId());
+		return criado;
 	}
 
-	public TelefoneDTO atualizar(TelefoneDTO telefoneDTO) {
-		if (telefoneDTO.getId() == null)
-			throw new IllegalArgumentException(SEM_ID);
+	public TelefoneDTO atualizar(@Valid TelefoneDTO telefoneDTO) {
+		Long id = telefoneDTO.getId();
+		if (id == null || id <= 0) {
+			log.warn("ID inválido ao atualizar telefone: {}", id);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
+		}
 
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+			String detalhes = String.join("; ", erros);
+			log.warn("Dados inválidos na atualização de telefone: {}", detalhes);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					ERRO_ENCONTRADO + " " + detalhes);
 		}
 
-		Telefone telefone = repositorio.findById(telefoneDTO.getId())
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		Telefone existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Telefone não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 
-		atualizador.atualizar(telefone, conversor.convertToEntity(telefoneDTO));
-		repositorio.save(telefone);
+		atualizador.atualizar(existente, conversor.convertToEntity(telefoneDTO));
+		Telefone salvo = repositorio.save(existente);
 
-		return conversor.convertToDto(telefone);
+		log.info("Telefone atualizado: id={}", salvo.getId());
+		return conversor.convertToDto(salvo);
 	}
 
 	public void excluir(Long id) {
+		if (id == null || id <= 0) {
+			log.warn("ID inválido ao excluir telefone: {}", id);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
+		}
+
 		Cliente cliente = repositorioCliente.findOneByTelefonesId(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+				.orElseThrow(() -> {
+					log.warn("Telefone não encontrado em cliente ao excluir: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 
 		Telefone telefone = cliente.getTelefones().stream()
 				.filter(t -> t.getId().equals(id))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		cliente.getTelefones().remove(telefone);
+				.orElseThrow(() -> {
+					log.warn("Telefone não encontrado na lista do cliente ao excluir: id={}", id);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 
+		cliente.getTelefones().remove(telefone);
 		repositorioCliente.save(cliente);
+
+		log.info("Telefone excluído: id={}", id);
 	}
 }
