@@ -25,7 +25,6 @@ import java.util.List;
 @Tag(name = "Cliente", description = "Operações CRUD de clientes")
 @RequiredArgsConstructor
 public class ClienteControle {
-
         private final ClienteServico servico;
 
         @Operation(summary = "Listar todos os clientes")
@@ -42,7 +41,8 @@ public class ClienteControle {
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
                         @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @GetMapping("/{id}")
         public ResponseEntity<ClienteDTO> buscarPorId(
@@ -53,7 +53,8 @@ public class ClienteControle {
         @Operation(summary = "Cadastrar um novo cliente")
         @ApiResponses({
                         @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "Problemas nos dados do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+                        @ApiResponse(responseCode = "400", description = "Problemas nos dados do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @PostMapping
         public ResponseEntity<ClienteDTO> cadastrar(@Valid @RequestBody ClienteDTO cliente) {
@@ -69,7 +70,8 @@ public class ClienteControle {
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso"),
                         @ApiResponse(responseCode = "400", description = "ID inválido ou problemas nos dados do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @PutMapping
         public ResponseEntity<ClienteDTO> atualizar(@Valid @RequestBody ClienteDTO cliente) {
@@ -80,7 +82,8 @@ public class ClienteControle {
         @ApiResponses({
                         @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso"),
                         @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @DeleteMapping("/{id}")
         public ResponseEntity<Void> excluir(
