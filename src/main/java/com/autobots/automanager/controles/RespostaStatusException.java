@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class RespostaStatusException {
@@ -22,7 +20,7 @@ public class RespostaStatusException {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErroControle> handleResponseStatusException(
-            ResponseStatusException ex, HttpServletRequestWrapper request) {
+            ResponseStatusException ex, HttpServletRequest request) {
 
         logger.warn("Status {}: {} at {}", ex.getStatusCode(), ex.getReason(), request.getRequestURI());
         ErroControle erro = new ErroControle(ex.getStatusCode().value(), ex.getReason());
@@ -37,7 +35,7 @@ public class RespostaStatusException {
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
 
         String message = String.join("; ", erros);
         logger.warn("Bad Request: {} at {}", message, request.getRequestURI());
@@ -52,7 +50,7 @@ public class RespostaStatusException {
         List<String> erros = ex.getConstraintViolations()
                 .stream()
                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                .collect(Collectors.toList());
+                .toList();
 
         String message = String.join("; ", erros);
         logger.warn("Constraint Violation: {} at {}", message, request.getRequestURI());
