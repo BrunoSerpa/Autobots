@@ -15,8 +15,7 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
 
     private DocumentoRepositorio repositorio;
 
-    public DocumentoValidar(List<String> erros,
-            DocumentoRepositorio repositorio) {
+    public DocumentoValidar(DocumentoRepositorio repositorio) {
         this.repositorio = repositorio;
     }
 
