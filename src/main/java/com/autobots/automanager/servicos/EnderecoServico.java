@@ -2,7 +2,9 @@ package com.autobots.automanager.servicos;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.autobots.automanager.converter.EnderecoConverter;
 import com.autobots.automanager.dto.ClienteDTO;
@@ -17,16 +19,16 @@ import com.autobots.automanager.validar.EnderecoValidar;
 @Service
 public class EnderecoServico {
 	private static final String NAO_ENCONTRADO = "Endereço não encontrado.";
-	private static final String SEM_ID = "Endereço não possui ID.";
-	private static final String ENDERECO_EXISTENTE = "Cliente possui endereço";
+	private static final String SEM_ID = "ID não informado ou inválido.";
+	private static final String ENDERECO_EXISTENTE = "Cliente já possui endereço.";
 	private static final String ERRO_ENCONTRADO = "Problemas no endereço:";
 
-	private ClienteServico servicoCliente;
-	private EnderecoAtualizador atualizador;
-	private EnderecoConverter conversor;
-	private EnderecoRepositorio repositorio;
-	private ClienteRepositorio repositorioCliente;
-	private EnderecoValidar validar;
+	private final ClienteServico servicoCliente;
+	private final EnderecoAtualizador atualizador;
+	private final EnderecoConverter conversor;
+	private final EnderecoRepositorio repositorio;
+	private final ClienteRepositorio repositorioCliente;
+	private final EnderecoValidar validar;
 
 	public EnderecoServico(ClienteServico servicoCliente,
 			EnderecoAtualizador atualizador,
@@ -43,64 +45,67 @@ public class EnderecoServico {
 	}
 
 	public EnderecoDTO procurar(Long id) {
-		Endereco endereco = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
-		return conversor.convertToDto(endereco);
+		if (id == null || id <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
+		}
+		Endereco e = repositorio.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO));
+		return conversor.convertToDto(e);
 	}
 
 	public List<EnderecoDTO> todos() {
-		List<Endereco> enderecos = repositorio.findAll();
-		return conversor.convertToDto(enderecos);
+		List<Endereco> lista = repositorio.findAll();
+		return conversor.convertToDto(lista);
 	}
 
-	public EnderecoDTO cadastro(Long idCliente, EnderecoDTO enderecoDTO) {
-		List<String> erros = validar.verificar(enderecoDTO);
+	public EnderecoDTO cadastro(Long idCliente, EnderecoDTO dto) {
+		List<String> erros = validar.verificar(dto);
 		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+			String msg = ERRO_ENCONTRADO + "\n" + String.join("\n", erros);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
 		}
 
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 
 		if (cliente.getEndereco() != null) {
-			throw new IllegalArgumentException(ENDERECO_EXISTENTE);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ENDERECO_EXISTENTE);
 		}
 
-		cliente.setEndereco(enderecoDTO);
+		cliente.setEndereco(dto);
 		servicoCliente.atualizar(cliente);
 
 		return cliente.getEndereco();
 	}
 
-	public EnderecoDTO atualizar(EnderecoDTO enderecoDTO) {
-		if (enderecoDTO.getId() == null)
-			throw new IllegalArgumentException(SEM_ID);
-
-		List<String> erros = validar.verificar(enderecoDTO);
-		if (!erros.isEmpty()) {
-			StringBuilder mensagem = new StringBuilder();
-			mensagem.append(ERRO_ENCONTRADO);
-			erros.forEach(erro -> mensagem.append("\n").append(erro));
-			throw new IllegalArgumentException(mensagem.toString());
+	public EnderecoDTO atualizar(EnderecoDTO dto) {
+		if (dto.getId() == null || dto.getId() <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
 		}
 
-		Endereco endereco = repositorio.findById(enderecoDTO.getId())
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+		List<String> erros = validar.verificar(dto);
+		if (!erros.isEmpty()) {
+			String msg = ERRO_ENCONTRADO + "\n" + String.join("\n", erros);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+		}
 
-		atualizador.atualizar(endereco, conversor.convertToEntity(enderecoDTO));
-		repositorio.save(endereco);
+		Endereco existente = repositorio.findById(dto.getId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO));
 
-		return conversor.convertToDto(endereco);
+		atualizador.atualizar(existente, conversor.convertToEntity(dto));
+		repositorio.save(existente);
+
+		return conversor.convertToDto(existente);
 	}
 
 	public void excluir(Long id) {
+		if (id == null || id <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
+		}
+
 		Cliente cliente = repositorioCliente.findOneByEnderecoId(id)
-				.orElseThrow(() -> new IllegalArgumentException(NAO_ENCONTRADO));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO));
 
 		cliente.setEndereco(null);
-
 		repositorioCliente.save(cliente);
 	}
 }

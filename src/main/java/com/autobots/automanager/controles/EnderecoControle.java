@@ -1,54 +1,100 @@
 package com.autobots.automanager.controles;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.autobots.automanager.dto.EnderecoDTO;
 import com.autobots.automanager.servicos.EnderecoServico;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/endereco")
+@Validated
+@Tag(name = "Endereço", description = "Operações CRUD de endereços")
+@RequiredArgsConstructor
 public class EnderecoControle {
-	private EnderecoServico enderecoServico;
+	private final EnderecoServico servico;
 
-	public EnderecoControle(EnderecoServico enderecoServico) {
-		this.enderecoServico = enderecoServico;
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<EnderecoDTO> procurarEndereco(@PathVariable Long id) {
-		return ResponseEntity.status(HttpStatus.OK).body(enderecoServico.procurar(id));
-	}
-
+	@Operation(summary = "Listar todos os endereços")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Lista de endereços retornada com sucesso"),
+			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+	})
 	@GetMapping
-	public ResponseEntity<List<EnderecoDTO>> todosEnderecos() {
-		return ResponseEntity.status(HttpStatus.OK).body(enderecoServico.todos());
+	public ResponseEntity<List<EnderecoDTO>> listarTodos() {
+		return ResponseEntity.ok(servico.todos());
 	}
 
+	@Operation(summary = "Buscar endereço por ID")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Endereço encontrado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+	})
+	@GetMapping("/{id}")
+	public ResponseEntity<EnderecoDTO> buscarPorId(
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long id) {
+		EnderecoDTO dto = servico.procurar(id);
+		return ResponseEntity.ok(dto);
+	}
+
+	@Operation(summary = "Cadastrar um novo endereço para um cliente")
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Endereço cadastrado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "Problemas nos Dados ou cliente já possui endereço", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+	})
 	@PostMapping("/{idCliente}")
-	public ResponseEntity<Void> cadastroEndereco(@PathVariable Long idCliente, @RequestBody EnderecoDTO endereco) {
-		enderecoServico.cadastro(idCliente, endereco);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+	public ResponseEntity<EnderecoDTO> cadastrar(
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idCliente,
+			@Valid @RequestBody EnderecoDTO endereco) {
+		EnderecoDTO criado = servico.cadastro(idCliente, endereco);
+		URI location = URI.create("/endereco/" + criado.getId());
+		return ResponseEntity
+				.created(location)
+				.header(HttpHeaders.LOCATION, location.toString())
+				.body(criado);
 	}
 
+	@Operation(summary = "Atualizar um endereço existente")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Endereço atualizado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "ID inválido ou problemas nos dados do endereço", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+	})
 	@PutMapping
-	public ResponseEntity<EnderecoDTO> atualizarEndereco(@RequestBody EnderecoDTO endereco) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoServico.atualizar(endereco));
+	public ResponseEntity<EnderecoDTO> atualizar(
+			@Valid @RequestBody EnderecoDTO endereco) {
+		EnderecoDTO atualizado = servico.atualizar(endereco);
+		return ResponseEntity.ok(atualizado);
 	}
 
+	@Operation(summary = "Excluir endereço por ID")
+	@ApiResponses({
+			@ApiResponse(responseCode = "204", description = "Endereço excluído com sucesso"),
+			@ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
+	})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> excluirEndereco(@PathVariable Long id) {
-		enderecoServico.excluir(id);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	public ResponseEntity<Void> excluir(
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long id) {
+		servico.excluir(id);
+		return ResponseEntity.noContent().build();
 	}
 }
