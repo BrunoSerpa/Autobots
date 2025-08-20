@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,7 +58,7 @@ public class ClienteServico {
 		return repositorio.findAll()
 				.stream()
 				.map(conversor::convertToDto)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public ClienteDTO cadastro(@Valid ClienteDTO dto) {
