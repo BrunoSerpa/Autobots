@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.EnderecoDTO;
-import com.autobots.automanager.modelo.StringVerificadorNulo;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
 
 @Component

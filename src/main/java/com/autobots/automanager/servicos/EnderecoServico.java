@@ -1,11 +1,11 @@
 package com.autobots.automanager.servicos;
 
+import com.autobots.automanager.atualizar.EnderecoAtualizador;
 import com.autobots.automanager.converter.EnderecoConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.dto.EnderecoDTO;
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.modelo.EnderecoAtualizador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
 import com.autobots.automanager.validar.EnderecoValidar;

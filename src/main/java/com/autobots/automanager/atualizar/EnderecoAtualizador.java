@@ -1,4 +1,4 @@
-package com.autobots.automanager.modelo;
+package com.autobots.automanager.atualizar;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 import com.autobots.automanager.entidades.Endereco;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
+import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
 public class EnderecoAtualizador {

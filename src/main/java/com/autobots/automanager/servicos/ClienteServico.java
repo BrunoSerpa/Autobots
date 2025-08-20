@@ -1,9 +1,9 @@
 package com.autobots.automanager.servicos;
 
+import com.autobots.automanager.atualizar.ClienteAtualizador;
 import com.autobots.automanager.converter.ClienteConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.entidades.Cliente;
-import com.autobots.automanager.modelo.ClienteAtualizador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.validar.ClienteValidar;
 

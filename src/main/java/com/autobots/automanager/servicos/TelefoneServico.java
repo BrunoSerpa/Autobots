@@ -1,11 +1,11 @@
 package com.autobots.automanager.servicos;
 
+import com.autobots.automanager.atualizar.TelefoneAtualizador;
 import com.autobots.automanager.converter.TelefoneConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.dto.TelefoneDTO;
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.modelo.TelefoneAtualizador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.repositorios.TelefoneRepositorio;
 import com.autobots.automanager.validar.TelefoneValidar;

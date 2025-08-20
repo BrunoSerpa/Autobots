@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.ClienteDTO;
-import com.autobots.automanager.modelo.StringVerificadorNulo;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 
 @Component

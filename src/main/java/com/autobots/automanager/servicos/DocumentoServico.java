@@ -1,11 +1,11 @@
 package com.autobots.automanager.servicos;
 
+import com.autobots.automanager.atualizar.DocumentoAtualizador;
 import com.autobots.automanager.converter.DocumentoConverter;
 import com.autobots.automanager.dto.ClienteDTO;
 import com.autobots.automanager.dto.DocumentoDTO;
 import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Documento;
-import com.autobots.automanager.modelo.DocumentoAtualizador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.repositorios.DocumentoRepositorio;
 import com.autobots.automanager.validar.DocumentoValidar;

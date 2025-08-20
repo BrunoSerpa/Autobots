@@ -1,4 +1,4 @@
-package com.autobots.automanager.modelo;
+package com.autobots.automanager.atualizar;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.entidades.Documento;
 import com.autobots.automanager.repositorios.DocumentoRepositorio;
+import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
 public class DocumentoAtualizador {
