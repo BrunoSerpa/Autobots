@@ -64,7 +64,6 @@ public class ClienteServico {
 
 	public ClienteDTO cadastro(@Valid ClienteDTO dto) {
 		List<String> erros = validar.verificar(dto);
-
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("", erros);
 			log.warn("Dados inválidos no cadastro: {}", detalhes);
@@ -86,9 +85,15 @@ public class ClienteServico {
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
+		
+		Cliente existente = repositorio.findById(id)
+				.orElseThrow(() -> {
+					log.warn("Cliente não encontrado ao atualizar: id={}", id);
+					return new ResponseStatusException(
+							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
+				});
 
 		List<String> erros = validar.verificar(dto);
-
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
 			log.warn("Dados inválidos na atualização: {}", detalhes);
@@ -96,13 +101,6 @@ public class ClienteServico {
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
-
-		Cliente existente = repositorio.findById(id)
-				.orElseThrow(() -> {
-					log.warn("Cliente não encontrado ao atualizar: id={}", id);
-					return new ResponseStatusException(
-							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
-				});
 
 		atualizador.atualizar(existente, conversor.convertToEntity(dto));
 		Cliente salvo = repositorio.save(existente);
