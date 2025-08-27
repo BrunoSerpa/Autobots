@@ -44,8 +44,10 @@ public class TelefoneAtualizador {
 	}
 
 	public void atualizar(List<Telefone> telefones, List<Telefone> atualizacoes) {
-		listaPadrao(telefones);
-		listaPadrao(atualizacoes);
+		if (telefones == null)
+			telefones = new ArrayList<>();
+		if (atualizacoes == null)
+			atualizacoes = new ArrayList<>();
 
 		List<Telefone> semId = extrairSemId(atualizacoes);
 		Map<Long, Telefone> porId = indexarPorId(telefones);
@@ -62,11 +64,6 @@ public class TelefoneAtualizador {
 			repositorioTelefone.delete(telefone);
 		}
 		return null;
-	}
-
-	private void listaPadrao(List<Telefone> possivel) {
-		if (possivel == null)
-			possivel = new ArrayList<>();
 	}
 
 	private List<Telefone> extrairSemId(List<Telefone> atualizacoes) {

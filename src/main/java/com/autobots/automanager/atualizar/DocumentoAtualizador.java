@@ -45,8 +45,11 @@ public class DocumentoAtualizador {
 	}
 
 	public void atualizar(List<Documento> documentos, List<Documento> atualizacoes) {
-		listaPadrao(documentos);
-		listaPadrao(atualizacoes);
+		if (documentos == null)
+			documentos = new ArrayList<>();
+		if (atualizacoes == null)
+			atualizacoes = new ArrayList<>();
+
 		List<Documento> semIdAtualizacoes = extrairSemId(atualizacoes);
 		Map<Long, Documento> porId = indexarPorId(documentos);
 		Set<Long> idsUsados = atualizarExistentes(porId, atualizacoes);
@@ -62,11 +65,6 @@ public class DocumentoAtualizador {
 			repositorioDocumento.delete(documento);
 		}
 		return null;
-	}
-
-	private void listaPadrao(List<Documento> possivel) {
-		if (possivel == null)
-			possivel = new ArrayList<>();
 	}
 
 	private List<Documento> extrairSemId(List<Documento> atualizacoes) {
