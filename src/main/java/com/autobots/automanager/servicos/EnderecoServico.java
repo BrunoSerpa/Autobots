@@ -91,6 +91,7 @@ public class EnderecoServico {
 
 		cliente.setEndereco(dto);
 		servicoCliente.atualizar(cliente);
+		cliente = servicoCliente.procurar(idCliente);
 
 		EnderecoDTO criado = cliente.getEndereco();
 		log.info("Endereço cadastrado: idCliente={}, idEndereco={}", idCliente, criado.getId());

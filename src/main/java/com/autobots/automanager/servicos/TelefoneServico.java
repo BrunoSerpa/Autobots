@@ -86,6 +86,7 @@ public class TelefoneServico {
 		ClienteDTO cliente = servicoCliente.procurar(idCliente);
 		cliente.getTelefones().add(telefoneDTO);
 		servicoCliente.atualizar(cliente);
+		cliente = servicoCliente.procurar(idCliente);
 
 		TelefoneDTO criado = cliente.getTelefones()
 				.get(cliente.getTelefones().size() - 1);

@@ -86,6 +86,7 @@ public class DocumentoServico {
 
 		cliente.getDocumentos().add(documentoDTO);
 		servicoCliente.atualizar(cliente);
+		cliente = servicoCliente.procurar(idCliente);
 
 		DocumentoDTO criado = cliente.getDocumentos()
 				.get(cliente.getDocumentos().size() - 1);
