@@ -12,13 +12,13 @@ public class Endereco {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column
+	@Column(nullable = false)
 	private String estado;
 
 	@Column(nullable = false)
 	private String cidade;
 
-	@Column
+	@Column(nullable = false)
 	private String bairro;
 
 	@Column(nullable = false)
@@ -27,7 +27,7 @@ public class Endereco {
 	@Column(nullable = false)
 	private String numero;
 
-	@Column
+	@Column(nullable = false)
 	private String codigoPostal;
 
 	@Column
