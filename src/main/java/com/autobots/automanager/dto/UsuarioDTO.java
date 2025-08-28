@@ -1,6 +1,6 @@
 package com.autobots.automanager.dto;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClienteDTO {
+public class UsuarioDTO {
     private Long id;
     private String nome;
     private String nomeSocial;

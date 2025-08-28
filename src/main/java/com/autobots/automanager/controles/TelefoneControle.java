@@ -89,14 +89,14 @@ public class TelefoneControle {
 	@ApiResponses({
 			@ApiResponse(responseCode = "201", description = "Telefone cadastrado com sucesso"),
 			@ApiResponse(responseCode = "400", description = "Dados inválidos ou cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-			@ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
 			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
 	})
-	@PostMapping("cadastrar/{idCliente}")
+	@PostMapping("cadastrar/{idUsuario}")
 	public ResponseEntity<EntityModel<TelefoneDTO>> cadastrar(
-			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idCliente,
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idUsuario,
 			@Valid @RequestBody TelefoneDTO telefoneDto) {
-		TelefoneDTO criado = servico.cadastro(idCliente, telefoneDto);
+		TelefoneDTO criado = servico.cadastro(idUsuario, telefoneDto);
 
 		EntityModel<TelefoneDTO> model = modelo.toModel(criado);
 

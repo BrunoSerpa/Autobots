@@ -2,11 +2,11 @@ package com.autobots.automanager.servicos;
 
 import com.autobots.automanager.atualizar.EnderecoAtualizador;
 import com.autobots.automanager.converter.EnderecoConverter;
-import com.autobots.automanager.dto.ClienteDTO;
+import com.autobots.automanager.dto.UsuarioDTO;
 import com.autobots.automanager.dto.EnderecoDTO;
-import com.autobots.automanager.entidades.Cliente;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
 import com.autobots.automanager.validar.EnderecoValidar;
 
@@ -23,27 +23,27 @@ import java.util.List;
 public class EnderecoServico {
 	private static final String NAO_ENCONTRADO = "Endereço não encontrado.";
 	private static final String ID_INVALIDO = "ID não informado ou inválido.";
-	private static final String ENDERECO_EXISTENTE = "Cliente já possui endereço.";
+	private static final String ENDERECO_EXISTENTE = "Usuario já possui endereço.";
 	private static final String ERRO_ENCONTRADO = "Problemas no endereço:";
 
-	private final ClienteServico servicoCliente;
+	private final UsuarioServico servicoUsuario;
 	private final EnderecoAtualizador atualizador;
 	private final EnderecoConverter conversor;
 	private final EnderecoRepositorio repositorio;
-	private final ClienteRepositorio repositorioCliente;
+	private final UsuarioRepositorio repositorioUsuario;
 	private final EnderecoValidar validar;
 
-	public EnderecoServico(ClienteServico servicoCliente,
+	public EnderecoServico(UsuarioServico servicoUsuario,
 			EnderecoAtualizador atualizador,
 			EnderecoConverter conversor,
 			EnderecoRepositorio repositorio,
-			ClienteRepositorio repositorioCliente,
+			UsuarioRepositorio repositorioUsuario,
 			EnderecoValidar validar) {
-		this.servicoCliente = servicoCliente;
+		this.servicoUsuario = servicoUsuario;
 		this.atualizador = atualizador;
 		this.conversor = conversor;
 		this.repositorio = repositorio;
-		this.repositorioCliente = repositorioCliente;
+		this.repositorioUsuario = repositorioUsuario;
 		this.validar = validar;
 	}
 
@@ -68,9 +68,9 @@ public class EnderecoServico {
 				.toList();
 	}
 
-	public EnderecoDTO cadastro(Long idCliente, @Valid EnderecoDTO dto) {
-		if (idCliente == null || idCliente <= 0) {
-			log.warn("ID de cliente inválido no cadastro de endereço: {}", idCliente);
+	public EnderecoDTO cadastro(Long idUsuario, @Valid EnderecoDTO dto) {
+		if (idUsuario == null || idUsuario <= 0) {
+			log.warn("ID de cliente inválido no cadastro de endereço: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
@@ -83,18 +83,18 @@ public class EnderecoServico {
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
 
-		ClienteDTO cliente = servicoCliente.procurar(idCliente);
+		UsuarioDTO cliente = servicoUsuario.procurar(idUsuario);
 		if (cliente.getEndereco() != null) {
-			log.warn("Tentativa de cadastrar endereço duplicado para cliente: {}", idCliente);
+			log.warn("Tentativa de cadastrar endereço duplicado para cliente: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ENDERECO_EXISTENTE);
 		}
 
 		cliente.setEndereco(dto);
-		servicoCliente.atualizar(cliente);
-		cliente = servicoCliente.procurar(idCliente);
+		servicoUsuario.atualizar(cliente);
+		cliente = servicoUsuario.procurar(idUsuario);
 
 		EnderecoDTO criado = cliente.getEndereco();
-		log.info("Endereço cadastrado: idCliente={}, idEndereco={}", idCliente, criado.getId());
+		log.info("Endereço cadastrado: idUsuario={}, idEndereco={}", idUsuario, criado.getId());
 		return criado;
 	}
 
@@ -133,14 +133,14 @@ public class EnderecoServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
-		Cliente cliente = repositorioCliente.findOneByEnderecoId(id)
+		Usuario cliente = repositorioUsuario.findOneByEnderecoId(id)
 				.orElseThrow(() -> {
 					log.warn("Endereço não encontrado em cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
 		cliente.setEndereco(null);
-		repositorioCliente.save(cliente);
+		repositorioUsuario.save(cliente);
 
 		log.info("Endereço excluído: id={}", id);
 	}

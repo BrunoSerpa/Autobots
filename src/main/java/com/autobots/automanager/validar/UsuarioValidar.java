@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-import com.autobots.automanager.dto.ClienteDTO;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.dto.UsuarioDTO;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 
 @Component
-public class ClienteValidar implements Validar<ClienteDTO> {
+public class UsuarioValidar implements Validar<UsuarioDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private ClienteRepositorio repositorio;
+    private UsuarioRepositorio repositorio;
     private DocumentoValidar validarDocumento;
     private EnderecoValidar validarEndereco;
     private TelefoneValidar validarTelefone;
 
-    public ClienteValidar(ClienteRepositorio repositorio,
+    public UsuarioValidar(UsuarioRepositorio repositorio,
             DocumentoValidar validarDocumento,
             EnderecoValidar validarEndereco,
             TelefoneValidar validarTelefone) {
@@ -27,11 +27,11 @@ public class ClienteValidar implements Validar<ClienteDTO> {
     }
 
     @Override
-    public List<String> verificar(ClienteDTO entity) {
+    public List<String> verificar(UsuarioDTO entity) {
         List<String> erros = new ArrayList<>();
 
         if (entity.getId() != null && !repositorio.findById(entity.getId()).isPresent())
-            erros.add("- Cliente não cadastrado;");
+            erros.add("- Usuario não cadastrado;");
         else if (NULO.verificar(entity.getNome()))
             erros.add("- Sem Nome;");
 
@@ -53,14 +53,14 @@ public class ClienteValidar implements Validar<ClienteDTO> {
     }
 
     @Override
-    public List<String> verificar(List<ClienteDTO> entities) {
+    public List<String> verificar(List<UsuarioDTO> entities) {
         List<String> erros = new ArrayList<>();
 
         for (int index = 0; entities.size() > index; index++) {
-            List<String> erroCliente = verificar(entities.get(index));
-            if (!erroCliente.isEmpty()) {
-                erros.add("- " + (index + 1) + "º Cliente:");
-                erros.addAll(erroCliente);
+            List<String> erroUsuario = verificar(entities.get(index));
+            if (!erroUsuario.isEmpty()) {
+                erros.add("- " + (index + 1) + "º Usuario:");
+                erros.addAll(erroUsuario);
             }
         }
 

@@ -88,15 +88,15 @@ public class DocumentoControle {
 	@Operation(summary = "Cadastrar um novo documento")
 	@ApiResponses({
 			@ApiResponse(responseCode = "201", description = "Documento cadastrado com sucesso"),
-			@ApiResponse(responseCode = "400", description = "Problemas nos dados do documento ou ID do Cliente inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-			@ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "400", description = "Problemas nos dados do documento ou ID do Usuario inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
 			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
 	})
-	@PostMapping("cadastrar/{idCliente}")
+	@PostMapping("cadastrar/{idUsuario}")
 	public ResponseEntity<EntityModel<DocumentoDTO>> cadastrar(
-			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idCliente,
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idUsuario,
 			@Valid @RequestBody DocumentoDTO documento) {
-		DocumentoDTO criado = servico.cadastro(idCliente, documento);
+		DocumentoDTO criado = servico.cadastro(idUsuario, documento);
 
 		EntityModel<DocumentoDTO> model = modelo.toModel(criado);
 

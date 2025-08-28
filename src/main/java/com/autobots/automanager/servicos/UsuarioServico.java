@@ -1,11 +1,11 @@
 package com.autobots.automanager.servicos;
 
-import com.autobots.automanager.atualizar.ClienteAtualizador;
-import com.autobots.automanager.converter.ClienteConverter;
-import com.autobots.automanager.dto.ClienteDTO;
-import com.autobots.automanager.entidades.Cliente;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
-import com.autobots.automanager.validar.ClienteValidar;
+import com.autobots.automanager.atualizar.UsuarioAtualizador;
+import com.autobots.automanager.converter.UsuarioConverter;
+import com.autobots.automanager.dto.UsuarioDTO;
+import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
+import com.autobots.automanager.validar.UsuarioValidar;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,27 +19,27 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class ClienteServico {
-	private static final String NAO_ENCONTRADO = "Cliente não encontrado.";
+public class UsuarioServico {
+	private static final String NAO_ENCONTRADO = "Usuário não encontrado.";
 	private static final String ID_INVALIDO = "ID não informado ou inválido.";
-	private static final String ERRO_ENCONTRADO = "Problemas no Cliente:";
+	private static final String ERRO_ENCONTRADO = "Problemas no Usuário:";
 
-	private final ClienteAtualizador atualizador;
-	private final ClienteConverter conversor;
-	private final ClienteRepositorio repositorio;
-	private final ClienteValidar validar;
+	private final UsuarioAtualizador atualizador;
+	private final UsuarioConverter conversor;
+	private final UsuarioRepositorio repositorio;
+	private final UsuarioValidar validar;
 
-	public ClienteServico(ClienteAtualizador atualizador,
-			ClienteConverter conversor,
-			ClienteRepositorio repositorio,
-			ClienteValidar validar) {
+	public UsuarioServico(UsuarioAtualizador atualizador,
+			UsuarioConverter conversor,
+			UsuarioRepositorio repositorio,
+			UsuarioValidar validar) {
 		this.atualizador = atualizador;
 		this.conversor = conversor;
 		this.repositorio = repositorio;
 		this.validar = validar;
 	}
 
-	public ClienteDTO procurar(Long id) {
+	public UsuarioDTO procurar(Long id) {
 		if (id == null || id <= 0) {
 			log.warn("ID inválido: {}", id);
 			throw new ResponseStatusException(
@@ -48,20 +48,20 @@ public class ClienteServico {
 		return repositorio.findById(id)
 				.map(conversor::convertToDto)
 				.orElseThrow(() -> {
-					log.warn("Cliente não encontrado: id={}", id);
+					log.warn("Usuário não encontrado: id={}", id);
 					return new ResponseStatusException(
 							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 	}
 
-	public List<ClienteDTO> todos() {
+	public List<UsuarioDTO> todos() {
 		return repositorio.findAll()
 				.stream()
 				.map(conversor::convertToDto)
 				.toList();
 	}
 
-	public ClienteDTO cadastro(@Valid ClienteDTO dto) {
+	public UsuarioDTO cadastro(@Valid UsuarioDTO dto) {
 		List<String> erros = validar.verificar(dto);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("", erros);
@@ -71,13 +71,13 @@ public class ClienteServico {
 					ERRO_ENCONTRADO + "\n" + detalhes);
 		}
 
-		Cliente entidade = conversor.convertToEntity(dto);
-		Cliente salvo = repositorio.save(entidade);
-		log.info("Cliente cadastrado: id={}", salvo.getId());
+		Usuario entidade = conversor.convertToEntity(dto);
+		Usuario salvo = repositorio.save(entidade);
+		log.info("Usuário cadastrado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
-	public ClienteDTO atualizar(@Valid ClienteDTO dto) {
+	public UsuarioDTO atualizar(@Valid UsuarioDTO dto) {
 		Long id = dto.getId();
 		if (id == null || id <= 0) {
 			log.warn("ID inválido ao atualizar: {}", id);
@@ -85,9 +85,9 @@ public class ClienteServico {
 					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 		
-		Cliente existente = repositorio.findById(id)
+		Usuario existente = repositorio.findById(id)
 				.orElseThrow(() -> {
-					log.warn("Cliente não encontrado ao atualizar: id={}", id);
+					log.warn("Usuário não encontrado ao atualizar: id={}", id);
 					return new ResponseStatusException(
 							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
@@ -102,8 +102,8 @@ public class ClienteServico {
 		}
 
 		atualizador.atualizar(existente, conversor.convertToEntity(dto));
-		Cliente salvo = repositorio.save(existente);
-		log.info("Cliente atualizado: id={}", salvo.getId());
+		Usuario salvo = repositorio.save(existente);
+		log.info("Usuário atualizado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
@@ -116,12 +116,12 @@ public class ClienteServico {
 
 		boolean existe = repositorio.existsById(id);
 		if (!existe) {
-			log.warn("Cliente não encontrado ao excluir: id={}", id);
+			log.warn("Usuário não encontrado ao excluir: id={}", id);
 			throw new ResponseStatusException(
 					HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 		}
 
 		repositorio.deleteById(id);
-		log.info("Cliente excluído: id={}", id);
+		log.info("Usuário excluído: id={}", id);
 	}
 }

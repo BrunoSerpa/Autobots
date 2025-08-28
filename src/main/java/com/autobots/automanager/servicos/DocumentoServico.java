@@ -2,11 +2,11 @@ package com.autobots.automanager.servicos;
 
 import com.autobots.automanager.atualizar.DocumentoAtualizador;
 import com.autobots.automanager.converter.DocumentoConverter;
-import com.autobots.automanager.dto.ClienteDTO;
+import com.autobots.automanager.dto.UsuarioDTO;
 import com.autobots.automanager.dto.DocumentoDTO;
-import com.autobots.automanager.entidades.Cliente;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Documento;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.repositorios.DocumentoRepositorio;
 import com.autobots.automanager.validar.DocumentoValidar;
 
@@ -26,24 +26,24 @@ public class DocumentoServico {
 	private static final String SEM_ID = "Documento não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Documento:";
 
-	private final ClienteServico servicoCliente;
+	private final UsuarioServico servicoUsuario;
 	private final DocumentoAtualizador atualizador;
 	private final DocumentoConverter conversor;
 	private final DocumentoRepositorio repositorio;
-	private final ClienteRepositorio repositorioCliente;
+	private final UsuarioRepositorio repositorioUsuario;
 	private final DocumentoValidar validar;
 
-	public DocumentoServico(ClienteServico servicoCliente,
+	public DocumentoServico(UsuarioServico servicoUsuario,
 			DocumentoAtualizador atualizador,
 			DocumentoConverter conversor,
 			DocumentoRepositorio repositorio,
-			ClienteRepositorio repositorioCliente,
+			UsuarioRepositorio repositorioUsuario,
 			DocumentoValidar validar) {
-		this.servicoCliente = servicoCliente;
+		this.servicoUsuario = servicoUsuario;
 		this.atualizador = atualizador;
 		this.conversor = conversor;
 		this.repositorio = repositorio;
-		this.repositorioCliente = repositorioCliente;
+		this.repositorioUsuario = repositorioUsuario;
 		this.validar = validar;
 	}
 
@@ -67,9 +67,9 @@ public class DocumentoServico {
 				.toList();
 	}
 
-	public DocumentoDTO cadastro(Long idCliente, @Valid DocumentoDTO documentoDTO) {
-		if (idCliente == null || idCliente <= 0) {
-			log.warn("ID de cliente inválido no cadastro de documento: {}", idCliente);
+	public DocumentoDTO cadastro(Long idUsuario, @Valid DocumentoDTO documentoDTO) {
+		if (idUsuario == null || idUsuario <= 0) {
+			log.warn("ID de cliente inválido no cadastro de documento: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
@@ -82,15 +82,15 @@ public class DocumentoServico {
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
 
-		ClienteDTO cliente = servicoCliente.procurar(idCliente);
+		UsuarioDTO cliente = servicoUsuario.procurar(idUsuario);
 
 		cliente.getDocumentos().add(documentoDTO);
-		servicoCliente.atualizar(cliente);
-		cliente = servicoCliente.procurar(idCliente);
+		servicoUsuario.atualizar(cliente);
+		cliente = servicoUsuario.procurar(idUsuario);
 
 		DocumentoDTO criado = cliente.getDocumentos()
 				.get(cliente.getDocumentos().size() - 1);
-		log.info("Documento cadastrado: idCliente={}, idDocumento={}", idCliente, criado.getId());
+		log.info("Documento cadastrado: idUsuario={}, idDocumento={}", idUsuario, criado.getId());
 		return criado;
 	}
 
@@ -128,7 +128,7 @@ public class DocumentoServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
-		Cliente cliente = repositorioCliente.findOneByDocumentosId(id)
+		Usuario cliente = repositorioUsuario.findOneByDocumentosId(id)
 				.orElseThrow(() -> {
 					log.warn("Documento não encontrado em cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
@@ -143,7 +143,7 @@ public class DocumentoServico {
 				});
 
 		cliente.getDocumentos().remove(documento);
-		repositorioCliente.save(cliente);
+		repositorioUsuario.save(cliente);
 		log.info("Documento excluído: id={}", id);
 	}
 }

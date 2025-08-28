@@ -89,14 +89,14 @@ public class EnderecoControle {
 	@ApiResponses({
 			@ApiResponse(responseCode = "201", description = "Endereço cadastrado com sucesso"),
 			@ApiResponse(responseCode = "400", description = "Problemas nos Dados ou cliente já possui endereço", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-			@ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+			@ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
 			@ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
 	})
-	@PostMapping("cadastrar/{idCliente}")
+	@PostMapping("cadastrar/{idUsuario}")
 	public ResponseEntity<EntityModel<EnderecoDTO>> cadastrar(
-			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idCliente,
+			@PathVariable @Positive(message = "ID deve ser um número positivo") Long idUsuario,
 			@Valid @RequestBody EnderecoDTO endereco) {
-		EnderecoDTO criado = servico.cadastro(idCliente, endereco);
+		EnderecoDTO criado = servico.cadastro(idUsuario, endereco);
 
 		EntityModel<EnderecoDTO> model = modelo.toModel(criado);
 

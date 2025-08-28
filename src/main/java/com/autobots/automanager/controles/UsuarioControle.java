@@ -1,8 +1,8 @@
 package com.autobots.automanager.controles;
 
-import com.autobots.automanager.dto.ClienteDTO;
-import com.autobots.automanager.modelos.ClienteModelo;
-import com.autobots.automanager.servicos.ClienteServico;
+import com.autobots.automanager.dto.UsuarioDTO;
+import com.autobots.automanager.modelos.UsuarioModelo;
+import com.autobots.automanager.servicos.UsuarioServico;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,47 +36,47 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/cliente")
+@RequestMapping("/usuario")
 @Validated
-@Tag(name = "Cliente", description = "Operações CRUD de clientes")
+@Tag(name = "Usuário", description = "Operações CRUD de usuários")
 @RequiredArgsConstructor
-public class ClienteControle {
-        private final ClienteServico servico;
-        private final ClienteModelo modelo;
+public class UsuarioControle {
+        private final UsuarioServico servico;
+        private final UsuarioModelo modelo;
 
-        @Operation(summary = "Listar todos os clientes")
+        @Operation(summary = "Listar todos os usuários")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Lista de clientes retornada com sucesso"),
+                        @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
                         @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @GetMapping("todos")
-        public CollectionModel<EntityModel<ClienteDTO>> listarTodos() {
-                List<EntityModel<ClienteDTO>> lista = servico.todos().stream()
+        public CollectionModel<EntityModel<UsuarioDTO>> listarTodos() {
+                List<EntityModel<UsuarioDTO>> lista = servico.todos().stream()
                                 .map(modelo::toModel)
                                 .toList();
 
                 return CollectionModel.of(lista,
-                                linkTo(methodOn(ClienteControle.class).listarTodos()).withSelfRel(),
-                                linkTo(methodOn(ClienteControle.class).cadastrar(null))
+                                linkTo(methodOn(UsuarioControle.class).listarTodos()).withSelfRel(),
+                                linkTo(methodOn(UsuarioControle.class).cadastrar(null))
                                                 .withRel("cadastrar")
                                                 .withType("POST"));
         }
 
-        @Operation(summary = "Buscar cliente por ID")
+        @Operation(summary = "Buscar usuário por ID")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Cliente encontrado com sucesso"),
+                        @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso"),
                         @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
                         @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @GetMapping("buscar/{id}")
-        public ResponseEntity<EntityModel<ClienteDTO>> buscarPorId(
+        public ResponseEntity<EntityModel<UsuarioDTO>> buscarPorId(
                         @PathVariable @Positive(message = "ID deve ser um número positivo") Long id) {
-                ClienteDTO encontrado = servico.procurar(id);
+                UsuarioDTO encontrado = servico.procurar(id);
 
-                EntityModel<ClienteDTO> model = modelo.toModel(encontrado);
+                EntityModel<UsuarioDTO> model = modelo.toModel(encontrado);
 
-                URI localizacao = linkTo(methodOn(ClienteControle.class)
+                URI localizacao = linkTo(methodOn(UsuarioControle.class)
                                 .buscarPorId(encontrado.getId())).toUri();
 
                 return ResponseEntity
@@ -85,20 +85,20 @@ public class ClienteControle {
                                 .body(model);
         }
 
-        @Operation(summary = "Cadastrar um novo cliente")
+        @Operation(summary = "Cadastrar um novo usuário")
         @ApiResponses({
-                        @ApiResponse(responseCode = "201", description = "Cliente cadastrado com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "Problemas nos dados do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso"),
+                        @ApiResponse(responseCode = "400", description = "Problemas nos dados do usuário", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
                         @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @PostMapping("cadastrar")
-        public ResponseEntity<EntityModel<ClienteDTO>> cadastrar(
-                        @Valid @RequestBody ClienteDTO clienteDto) {
-                ClienteDTO criado = servico.cadastro(clienteDto);
+        public ResponseEntity<EntityModel<UsuarioDTO>> cadastrar(
+                        @Valid @RequestBody UsuarioDTO clienteDto) {
+                UsuarioDTO criado = servico.cadastro(clienteDto);
 
-                EntityModel<ClienteDTO> model = modelo.toModel(criado);
+                EntityModel<UsuarioDTO> model = modelo.toModel(criado);
 
-                URI localizacao = linkTo(methodOn(ClienteControle.class)
+                URI localizacao = linkTo(methodOn(UsuarioControle.class)
                                 .buscarPorId(criado.getId())).toUri();
 
                 return ResponseEntity
@@ -109,22 +109,22 @@ public class ClienteControle {
 
         @Operation(summary = "Atualizar um cliente existente")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ClienteDTO.class))),
-                        @ApiResponse(responseCode = "400", description = "ID inválido ou problemas nos dados do cliente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = UsuarioDTO.class))),
+                        @ApiResponse(responseCode = "400", description = "ID inválido ou problemas nos dados do usuário", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
                         @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @PutMapping("atualizar/{id}")
-        public ResponseEntity<EntityModel<ClienteDTO>> atualizar(
+        public ResponseEntity<EntityModel<UsuarioDTO>> atualizar(
                         @PathVariable @Positive(message = "ID deve ser um número positivo") Long id,
-                        @Valid @RequestBody ClienteDTO clienteDto) {
+                        @Valid @RequestBody UsuarioDTO clienteDto) {
                 clienteDto.setId(id);
 
-                ClienteDTO atualizado = servico.atualizar(clienteDto);
+                UsuarioDTO atualizado = servico.atualizar(clienteDto);
 
-                EntityModel<ClienteDTO> model = modelo.toModel(atualizado);
+                EntityModel<UsuarioDTO> model = modelo.toModel(atualizado);
 
-                URI localizacao = linkTo(methodOn(ClienteControle.class)
+                URI localizacao = linkTo(methodOn(UsuarioControle.class)
                                 .buscarPorId(atualizado.getId())).toUri();
 
                 return ResponseEntity
@@ -133,11 +133,11 @@ public class ClienteControle {
                                 .body(model);
         }
 
-        @Operation(summary = "Excluir cliente por ID")
+        @Operation(summary = "Excluir usuário por ID")
         @ApiResponses({
-                        @ApiResponse(responseCode = "204", description = "Cliente excluído com sucesso"),
+                        @ApiResponse(responseCode = "204", description = "Usuário excluído com sucesso"),
                         @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Cliente não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
+                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
                         @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
         })
         @DeleteMapping("excluir/{id}")
@@ -146,8 +146,8 @@ public class ClienteControle {
                 servico.excluir(id);
 
                 CollectionModel<Void> links = CollectionModel.empty();
-                links.add(linkTo(methodOn(ClienteControle.class).listarTodos()).withRel("clientes"));
-                links.add(linkTo(methodOn(ClienteControle.class).cadastrar(null)).withRel("cadastrar")
+                links.add(linkTo(methodOn(UsuarioControle.class).listarTodos()).withRel("usuários"));
+                links.add(linkTo(methodOn(UsuarioControle.class).cadastrar(null)).withRel("cadastrar")
                                 .withType("POST"));
 
                 return ResponseEntity.ok(links);

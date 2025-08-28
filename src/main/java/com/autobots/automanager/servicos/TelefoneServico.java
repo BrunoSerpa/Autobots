@@ -2,11 +2,11 @@ package com.autobots.automanager.servicos;
 
 import com.autobots.automanager.atualizar.TelefoneAtualizador;
 import com.autobots.automanager.converter.TelefoneConverter;
-import com.autobots.automanager.dto.ClienteDTO;
+import com.autobots.automanager.dto.UsuarioDTO;
 import com.autobots.automanager.dto.TelefoneDTO;
-import com.autobots.automanager.entidades.Cliente;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.repositorios.TelefoneRepositorio;
 import com.autobots.automanager.validar.TelefoneValidar;
 
@@ -26,24 +26,24 @@ public class TelefoneServico {
 	private static final String SEM_ID = "Telefone não possui ID.";
 	private static final String ERRO_ENCONTRADO = "Problemas no Telefone:";
 
-	private final ClienteServico servicoCliente;
+	private final UsuarioServico servicoUsuario;
 	private final TelefoneAtualizador atualizador;
 	private final TelefoneConverter conversor;
 	private final TelefoneRepositorio repositorio;
-	private final ClienteRepositorio repositorioCliente;
+	private final UsuarioRepositorio repositorioUsuario;
 	private final TelefoneValidar validar;
 
-	public TelefoneServico(ClienteServico servicoCliente,
-			ClienteRepositorio repositorioCliente,
+	public TelefoneServico(UsuarioServico servicoUsuario,
+			UsuarioRepositorio repositorioUsuario,
 			TelefoneAtualizador atualizador,
 			TelefoneConverter conversor,
 			TelefoneRepositorio repositorio,
 			TelefoneValidar validar) {
-		this.servicoCliente = servicoCliente;
+		this.servicoUsuario = servicoUsuario;
 		this.atualizador = atualizador;
 		this.conversor = conversor;
 		this.repositorio = repositorio;
-		this.repositorioCliente = repositorioCliente;
+		this.repositorioUsuario = repositorioUsuario;
 		this.validar = validar;
 	}
 
@@ -68,9 +68,9 @@ public class TelefoneServico {
 				.toList();
 	}
 
-	public TelefoneDTO cadastro(Long idCliente, @Valid TelefoneDTO telefoneDTO) {
-		if (idCliente == null || idCliente <= 0) {
-			log.warn("ID de cliente inválido no cadastro de telefone: {}", idCliente);
+	public TelefoneDTO cadastro(Long idUsuario, @Valid TelefoneDTO telefoneDTO) {
+		if (idUsuario == null || idUsuario <= 0) {
+			log.warn("ID de cliente inválido no cadastro de telefone: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
@@ -83,15 +83,15 @@ public class TelefoneServico {
 					ERRO_ENCONTRADO + " " + detalhes);
 		}
 
-		ClienteDTO cliente = servicoCliente.procurar(idCliente);
+		UsuarioDTO cliente = servicoUsuario.procurar(idUsuario);
 		cliente.getTelefones().add(telefoneDTO);
-		servicoCliente.atualizar(cliente);
-		cliente = servicoCliente.procurar(idCliente);
+		servicoUsuario.atualizar(cliente);
+		cliente = servicoUsuario.procurar(idUsuario);
 
 		TelefoneDTO criado = cliente.getTelefones()
 				.get(cliente.getTelefones().size() - 1);
-		log.info("Telefone cadastrado: idCliente={}, idTelefone={}",
-				idCliente, criado.getId());
+		log.info("Telefone cadastrado: idUsuario={}, idTelefone={}",
+				idUsuario, criado.getId());
 		return criado;
 	}
 
@@ -130,7 +130,7 @@ public class TelefoneServico {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
-		Cliente cliente = repositorioCliente.findOneByTelefonesId(id)
+		Usuario cliente = repositorioUsuario.findOneByTelefonesId(id)
 				.orElseThrow(() -> {
 					log.warn("Telefone não encontrado em cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
@@ -145,7 +145,7 @@ public class TelefoneServico {
 				});
 
 		cliente.getTelefones().remove(telefone);
-		repositorioCliente.save(cliente);
+		repositorioUsuario.save(cliente);
 
 		log.info("Telefone excluído: id={}", id);
 	}
