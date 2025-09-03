@@ -39,7 +39,6 @@ public class Veiculo {
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     private Set<Venda> vendas = new HashSet<>();
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }
