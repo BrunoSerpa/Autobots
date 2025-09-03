@@ -1,6 +1,10 @@
 package com.autobots.automanager.dto;
 
+import com.autobots.automanager.enumeracoes.TipoDocumento;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,30 +16,39 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DocumentoDTO {
     private Long id;
-    private String tipo;
+    private TipoDocumento tipo;
+    private Date dataEmissao;
     private String numero;
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getTipo() {
-        return tipo;
-    }
+	public TipoDocumento getTipo() {
+		return tipo;
+	}
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
+	public void setTipo(TipoDocumento tipo) {
+		this.tipo = tipo;
+	}
 
-    public String getNumero() {
-        return numero;
-    }
+	public Date getDataEmissao() {
+		return dataEmissao;
+	}
 
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
+	public void setDataEmissao(Date dataEmissao) {
+		this.dataEmissao = dataEmissao;
+	}
+
+	public String getNumero() {
+		return numero;
+	}
+
+	public void setNumero(String numero) {
+		this.numero = numero;
+	}
 }
