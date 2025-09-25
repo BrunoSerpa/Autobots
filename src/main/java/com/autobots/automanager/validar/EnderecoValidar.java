@@ -2,8 +2,7 @@ package com.autobots.automanager.validar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,7 @@ import com.autobots.automanager.repositorios.EnderecoRepositorio;
 public class EnderecoValidar implements Validar<EnderecoDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private EnderecoRepositorio repositorio;
+    private final EnderecoRepositorio repositorio;
 
     public EnderecoValidar(EnderecoRepositorio repositorio) {
         this.repositorio = repositorio;
@@ -31,31 +30,45 @@ public class EnderecoValidar implements Validar<EnderecoDTO> {
             return erros;
         }
 
-        Map<String, Supplier<String>> campos = Map.of(
-                "Cidade", entity::getCidade,
-                "Rua", entity::getRua,
-                "Numero", entity::getNumero);
+        if (NULO.verificar(entity.getEstado())) {
+            erros.add("- Estado não informado;");
+        }
 
-        campos.forEach((nome, fornecedor) -> {
-            String valor = fornecedor.get();
-            if (NULO.verificar(valor)) {
-                erros.add("- Sem " + nome + ";");
-            }
-        });
+        if (NULO.verificar(entity.getCidade())) {
+            erros.add("- Cidade não informada;");
+        }
+
+        if (NULO.verificar(entity.getBairro())) {
+            erros.add("- Bairro não informado;");
+        }
+
+        if (NULO.verificar(entity.getRua())) {
+            erros.add("- Rua não informada;");
+        }
+
+        if (NULO.verificar(entity.getNumero())) {
+            erros.add("- Número não informado;");
+        }
+
+        if (NULO.verificar(entity.getCodigoPostal())) {
+            erros.add("- Código postal não informado;");
+        }
+
         return erros;
     }
 
     @Override
-    public List<String> verificar(List<EnderecoDTO> entities) {
+    public List<String> verificar(Set<EnderecoDTO> entities) {
         List<String> erros = new ArrayList<>();
+        int index = 1;
 
-        for (int index = 0; entities.size() > index; index++) {
-            List<String> erroEndereco = verificar(entities.get(index));
+        for (EnderecoDTO endereco : entities) {
+            List<String> erroEndereco = verificar(endereco);
             if (!erroEndereco.isEmpty()) {
-                erros.add("- " + (index + 1) + "º Endereço:");
+                erros.add("- " + index + "º Endereço:");
                 erros.addAll(erroEndereco);
             }
-
+            index++;
         }
 
         return erros;
