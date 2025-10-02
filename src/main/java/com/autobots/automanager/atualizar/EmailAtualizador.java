@@ -9,37 +9,34 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.repositorios.TelefoneRepositorio;
+import com.autobots.automanager.entidades.Email;
+import com.autobots.automanager.repositorios.EmailRepositorio;
 import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
-public final class TelefoneAtualizador extends Atualizar<Telefone> {
+public final class EmailAtualizador extends Atualizar<Email> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private final TelefoneRepositorio repositorio;
+    private final EmailRepositorio repositorio;
 
-    public TelefoneAtualizador(TelefoneRepositorio repositorio) {
+    public EmailAtualizador(EmailRepositorio repositorio) {
         this.repositorio = repositorio;
     }
 
     @Override
-    protected void aplicarAtualizacao(Telefone entidade, Telefone atualizacao) {
-        if (!NULO.verificar(atualizacao.getDdd())) {
-            entidade.setDdd(atualizacao.getDdd());
-        }
-        if (!NULO.verificar(atualizacao.getNumero())) {
-            entidade.setNumero(atualizacao.getNumero());
+    protected void aplicarAtualizacao(Email entidade, Email atualizacao) {
+        if (!NULO.verificar(atualizacao.getEndereco())) {
+            entidade.setEndereco(atualizacao.getEndereco());
         }
     }
 
     @Override
-    protected Set<Long> atualizacaoExistente(Map<Long, Telefone> existentes, Set<Telefone> atualizacoes) {
+    protected Set<Long> atualizacaoExistente(Map<Long, Email> existentes, Set<Email> atualizacoes) {
         Set<Long> usados = new HashSet<>();
         atualizacoes.stream()
                 .filter(atual -> atual.getId() != null)
                 .forEach(atual -> {
-                    Telefone existente = existentes.get(atual.getId());
+                    Email existente = existentes.get(atual.getId());
                     if (existente != null) {
                         atualizar(existente, atual);
                         usados.add(existente.getId());
@@ -49,12 +46,12 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected Telefone criarNovo() {
-        return new Telefone();
+    protected Email criarNovo() {
+        return new Email();
     }
 
     @Override
-    protected Telefone deletarExistente(Telefone entidade) {
+    protected Email deletarExistente(Email entidade) {
         if (entidade != null) {
             repositorio.delete(entidade);
         }
@@ -62,32 +59,32 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected Set<Telefone> extrairSemId(Set<Telefone> atualizacoes) {
+    protected Set<Email> extrairSemId(Set<Email> atualizacoes) {
         return atualizacoes.stream()
                 .filter(atual -> atual.getId() == null)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    protected Map<Long, Telefone> indexarPorId(Set<Telefone> entidades) {
+    protected Map<Long, Email> indexarPorId(Set<Email> entidades) {
         return entidades.stream()
                 .filter(atual -> atual.getId() != null)
-                .collect(Collectors.toMap(Telefone::getId, Function.identity()));
+                .collect(Collectors.toMap(Email::getId, Function.identity()));
     }
 
     @Override
-    protected Set<Telefone> reconciliar(Set<Telefone> entidades, Set<Telefone> novas, Set<Long> idsUsados) {
-        Iterator<Telefone> iter = entidades.iterator();
-        Iterator<Telefone> novosIter = novas.iterator();
-        Set<Telefone> naoConsumidos = new HashSet<>();
+    protected Set<Email> reconciliar(Set<Email> entidades, Set<Email> novas, Set<Long> idsUsados) {
+        Iterator<Email> iter = entidades.iterator();
+        Iterator<Email> novosIter = novas.iterator();
+        Set<Email> naoConsumidos = new HashSet<>();
 
         while (iter.hasNext()) {
-            Telefone atual = iter.next();
+            Email atual = iter.next();
             if (idsUsados.contains(atual.getId())) {
                 continue;
             }
             if (novosIter.hasNext()) {
-                Telefone novo = novosIter.next();
+                Email novo = novosIter.next();
                 atualizar(atual, novo);
             } else {
                 iter.remove();
@@ -103,7 +100,7 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected void salvarNovo(Telefone entidade) {
+    protected void salvarNovo(Email entidade) {
         try {
             repositorio.save(entidade);
         } catch (Exception erro) {

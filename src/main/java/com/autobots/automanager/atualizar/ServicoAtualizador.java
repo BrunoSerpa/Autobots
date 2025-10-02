@@ -3,43 +3,46 @@ package com.autobots.automanager.atualizar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.repositorios.TelefoneRepositorio;
+import com.autobots.automanager.entidades.Servico;
+import com.autobots.automanager.repositorios.ServicoRepositorio;
 import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
-public final class TelefoneAtualizador extends Atualizar<Telefone> {
+public final class ServicoAtualizador extends Atualizar<Servico> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-    private final TelefoneRepositorio repositorio;
+    private final ServicoRepositorio repositorio;
 
-    public TelefoneAtualizador(TelefoneRepositorio repositorio) {
+    public ServicoAtualizador(ServicoRepositorio repositorio) {
         this.repositorio = repositorio;
     }
 
     @Override
-    protected void aplicarAtualizacao(Telefone entidade, Telefone atualizacao) {
-        if (!NULO.verificar(atualizacao.getDdd())) {
-            entidade.setDdd(atualizacao.getDdd());
+    protected void aplicarAtualizacao(Servico entidade, Servico atualizacao) {
+        if (!NULO.verificar(atualizacao.getNome())) {
+            entidade.setNome(atualizacao.getNome());
         }
-        if (!NULO.verificar(atualizacao.getNumero())) {
-            entidade.setNumero(atualizacao.getNumero());
-        }
+
+        Optional.ofNullable(atualizacao.getValor())
+            .ifPresent(entidade::setValor);
+
+        entidade.setDescricao(atualizacao.getDescricao());
     }
 
     @Override
-    protected Set<Long> atualizacaoExistente(Map<Long, Telefone> existentes, Set<Telefone> atualizacoes) {
+    protected Set<Long> atualizacaoExistente(Map<Long, Servico> existentes, Set<Servico> atualizacoes) {
         Set<Long> usados = new HashSet<>();
         atualizacoes.stream()
                 .filter(atual -> atual.getId() != null)
                 .forEach(atual -> {
-                    Telefone existente = existentes.get(atual.getId());
+                    Servico existente = existentes.get(atual.getId());
                     if (existente != null) {
                         atualizar(existente, atual);
                         usados.add(existente.getId());
@@ -49,12 +52,12 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected Telefone criarNovo() {
-        return new Telefone();
+    protected Servico criarNovo() {
+        return new Servico();
     }
 
     @Override
-    protected Telefone deletarExistente(Telefone entidade) {
+    protected Servico deletarExistente(Servico entidade) {
         if (entidade != null) {
             repositorio.delete(entidade);
         }
@@ -62,32 +65,32 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected Set<Telefone> extrairSemId(Set<Telefone> atualizacoes) {
+    protected Set<Servico> extrairSemId(Set<Servico> atualizacoes) {
         return atualizacoes.stream()
                 .filter(atual -> atual.getId() == null)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    protected Map<Long, Telefone> indexarPorId(Set<Telefone> entidades) {
+    protected Map<Long, Servico> indexarPorId(Set<Servico> entidades) {
         return entidades.stream()
                 .filter(atual -> atual.getId() != null)
-                .collect(Collectors.toMap(Telefone::getId, Function.identity()));
+                .collect(Collectors.toMap(Servico::getId, Function.identity()));
     }
 
     @Override
-    protected Set<Telefone> reconciliar(Set<Telefone> entidades, Set<Telefone> novas, Set<Long> idsUsados) {
-        Iterator<Telefone> iter = entidades.iterator();
-        Iterator<Telefone> novosIter = novas.iterator();
-        Set<Telefone> naoConsumidos = new HashSet<>();
+    protected Set<Servico> reconciliar(Set<Servico> entidades, Set<Servico> novas, Set<Long> idsUsados) {
+        Iterator<Servico> iter = entidades.iterator();
+        Iterator<Servico> novosIter = novas.iterator();
+        Set<Servico> naoConsumidos = new HashSet<>();
 
         while (iter.hasNext()) {
-            Telefone atual = iter.next();
+            Servico atual = iter.next();
             if (idsUsados.contains(atual.getId())) {
                 continue;
             }
             if (novosIter.hasNext()) {
-                Telefone novo = novosIter.next();
+                Servico novo = novosIter.next();
                 atualizar(atual, novo);
             } else {
                 iter.remove();
@@ -103,7 +106,7 @@ public final class TelefoneAtualizador extends Atualizar<Telefone> {
     }
 
     @Override
-    protected void salvarNovo(Telefone entidade) {
+    protected void salvarNovo(Servico entidade) {
         try {
             repositorio.save(entidade);
         } catch (Exception erro) {

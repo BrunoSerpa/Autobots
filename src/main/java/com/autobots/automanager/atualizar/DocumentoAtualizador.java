@@ -1,9 +1,7 @@
 package com.autobots.automanager.atualizar;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -16,134 +14,103 @@ import com.autobots.automanager.repositorios.DocumentoRepositorio;
 import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
-public class DocumentoAtualizador {
-	private static final String NUMERO_EXISTENTE = "Número de documento já cadastrado";
-	private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
+public final class DocumentoAtualizador extends Atualizar<Documento> {
+    private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
-	private final DocumentoRepositorio repositorioDocumento;
+    private final DocumentoRepositorio repositorio;
 
-	public DocumentoAtualizador(DocumentoRepositorio repositorioDocumento) {
-		this.repositorioDocumento = repositorioDocumento;
-	}
+    public DocumentoAtualizador(DocumentoRepositorio repositorio) {
+        this.repositorio = repositorio;
+    }
 
-	public Documento atualizar(Documento documento, Documento atualizacao) {
-		if (atualizacao == null) {
-			return deletarSeExistir(documento);
-		}
+    @Override
+    protected void aplicarAtualizacao(Documento entidade, Documento atualizacao) {
+        if (atualizacao.getDataEmissao() != null) {
+            entidade.setDataEmissao(atualizacao.getDataEmissao());
+        }
+        if (atualizacao.getTipo() != null) {
+            entidade.setTipo(atualizacao.getTipo());
+        }
+        if (!NULO.verificar(atualizacao.getNumero())) {
+            entidade.setNumero(atualizacao.getNumero());
+        }
+    }
 
-		boolean novo = (documento == null);
-		if (novo) {
-			documento = new Documento();
-		}
+    @Override
+    protected Set<Long> atualizacaoExistente(Map<Long, Documento> existentes, Set<Documento> atualizacoes) {
+        Set<Long> usados = new HashSet<>();
+        atualizacoes.stream()
+                .filter(atual -> atual.getId() != null)
+                .forEach(atual -> {
+                    Documento existente = existentes.get(atual.getId());
+                    if (existente != null) {
+                        atualizar(existente, atual);
+                        usados.add(existente.getId());
+                    }
+                });
+        return usados;
+    }
 
-		aplicarAtualizacao(documento, atualizacao);
+    @Override
+    protected Documento criarNovo() {
+        return new Documento();
+    }
 
-		if (novo) {
-			salvarNovo(documento);
-		}
-		return documento;
-	}
+    @Override
+    protected Documento deletarExistente(Documento entidade) {
+        if (entidade != null) {
+            repositorio.delete(entidade);
+        }
+        return null;
+    }
 
-	public void atualizar(List<Documento> documentos, List<Documento> atualizacoes) {
-		if (documentos == null)
-			documentos = new ArrayList<>();
-		if (atualizacoes == null)
-			atualizacoes = new ArrayList<>();
+    @Override
+    protected Set<Documento> extrairSemId(Set<Documento> atualizacoes) {
+        return atualizacoes.stream()
+                .filter(atual -> atual.getId() == null)
+                .collect(Collectors.toSet());
+    }
 
-		List<Documento> semIdAtualizacoes = extrairSemId(atualizacoes);
-		Map<Long, Documento> porId = indexarPorId(documentos);
-		Set<Long> idsUsados = atualizarExistentes(porId, atualizacoes);
-		int consumidos = reconciliar(documentos, semIdAtualizacoes, idsUsados);
+    @Override
+    protected Map<Long, Documento> indexarPorId(Set<Documento> entidades) {
+        return entidades.stream()
+                .filter(atual -> atual.getId() != null)
+                .collect(Collectors.toMap(Documento::getId, Function.identity()));
+    }
 
-		persistirNovos(
-				documentos,
-				semIdAtualizacoes.subList(consumidos, semIdAtualizacoes.size()));
-	}
+    @Override
+    protected Set<Documento> reconciliar(Set<Documento> entidades, Set<Documento> novas, Set<Long> idsUsados) {
+        Iterator<Documento> iter = entidades.iterator();
+        Iterator<Documento> novosIter = novas.iterator();
+        Set<Documento> naoConsumidos = new HashSet<>();
 
-	private Documento deletarSeExistir(Documento documento) {
-		if (documento != null) {
-			repositorioDocumento.delete(documento);
-		}
-		return null;
-	}
+        while (iter.hasNext()) {
+            Documento atual = iter.next();
+            if (idsUsados.contains(atual.getId())) {
+                continue;
+            }
+            if (novosIter.hasNext()) {
+                Documento novo = novosIter.next();
+                atualizar(atual, novo);
+            } else {
+                iter.remove();
+                repositorio.delete(atual);
+            }
+        }
 
-	private List<Documento> extrairSemId(List<Documento> atualizacoes) {
-		return atualizacoes.stream()
-				.filter(d -> d.getId() == null)
-				.toList();
-	}
+        while (novosIter.hasNext()) {
+            naoConsumidos.add(novosIter.next());
+        }
 
-	private Map<Long, Documento> indexarPorId(List<Documento> documentos) {
-		return documentos.stream()
-				.filter(d -> d.getId() != null)
-				.collect(Collectors.toMap(Documento::getId, Function.identity()));
-	}
+        return naoConsumidos;
+    }
 
-	private Set<Long> atualizarExistentes(
-			Map<Long, Documento> existentes,
-			List<Documento> atualizacoes) {
-		Set<Long> idsUsados = new HashSet<>();
-		atualizacoes.stream()
-				.filter(d -> d.getId() != null)
-				.forEach(atual -> {
-					Documento original = existentes.get(atual.getId());
-					if (original != null) {
-						atualizar(original, atual);
-						idsUsados.add(original.getId());
-					}
-				});
-		return idsUsados;
-	}
-
-	private int reconciliar(
-			List<Documento> documentos,
-			List<Documento> semId,
-			Set<Long> idsUsados) {
-		Iterator<Documento> iter = documentos.iterator();
-		int indice = 0;
-
-		while (iter.hasNext()) {
-			Documento doc = iter.next();
-			if (idsUsados.contains(doc.getId())) {
-				continue;
-			}
-			if (indice < semId.size()) {
-				atualizar(doc, semId.get(indice));
-				indice++;
-			} else {
-				iter.remove();
-				repositorioDocumento.delete(doc);
-			}
-		}
-		return indice;
-	}
-
-	private void aplicarAtualizacao(Documento documento, Documento atualizacao) {
-		documento.setTipo(atualizacao.getTipo());
-		if (!NULO.verificar(atualizacao.getNumero())) {
-			documento.setNumero(atualizacao.getNumero());
-		}
-	}
-
-	private void persistirNovos(
-			List<Documento> documentos,
-			List<Documento> novos) {
-		for (Documento novo : novos) {
-			try {
-				Documento salvo = repositorioDocumento.save(novo);
-				documentos.add(salvo);
-			} catch (Exception ex) {
-				throw new IllegalArgumentException(NUMERO_EXISTENTE);
-			}
-		}
-	}
-
-	private void salvarNovo(Documento documento) {
-		try {
-			repositorioDocumento.save(documento);
-		} catch (Exception ex) {
-			throw new IllegalArgumentException(NUMERO_EXISTENTE);
-		}
-	}
-
+    @Override
+    protected void salvarNovo(Documento entidade) {
+        try {
+            repositorio.save(entidade);
+        } catch (Exception erro) {
+            throw new IllegalArgumentException("Já cadastrado", erro);
+        }
+    }
 }
