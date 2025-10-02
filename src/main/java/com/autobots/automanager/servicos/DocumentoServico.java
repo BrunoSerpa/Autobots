@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.TreeSet;
 
 @Slf4j
 @Service
@@ -88,8 +89,7 @@ public class DocumentoServico {
 		servicoUsuario.atualizar(cliente);
 		cliente = servicoUsuario.procurar(idUsuario);
 
-		DocumentoDTO criado = cliente.getDocumentos()
-				.get(cliente.getDocumentos().size() - 1);
+		DocumentoDTO criado = ((TreeSet<DocumentoDTO>) cliente.getDocumentos()).last();
 		log.info("Documento cadastrado: idUsuario={}, idDocumento={}", idUsuario, criado.getId());
 		return criado;
 	}
