@@ -13,14 +13,12 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@EqualsAndHashCode(exclude = { "cliente", "funcionario", "veiculo" })
 public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

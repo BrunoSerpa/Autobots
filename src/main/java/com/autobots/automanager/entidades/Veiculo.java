@@ -15,10 +15,7 @@ import jakarta.persistence.OneToMany;
 import java.util.Set;
 import java.util.HashSet;
 
-import lombok.EqualsAndHashCode;
-
 @Entity
-@EqualsAndHashCode(exclude = { "proprietario", "vendas" })
 public class Veiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

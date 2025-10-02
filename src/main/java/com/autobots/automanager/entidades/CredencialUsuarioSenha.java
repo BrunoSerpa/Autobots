@@ -3,10 +3,7 @@ package com.autobots.automanager.entidades;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
-import lombok.EqualsAndHashCode;
-
 @Entity
-@EqualsAndHashCode(callSuper = true)
 public class CredencialUsuarioSenha extends Credencial {
     @Column(nullable = false, unique = true)
     private String nomeUsuario;
