@@ -31,7 +31,7 @@ public abstract sealed class Atualizar<E> permits
         }
 
         return entidade;
-    };
+    }
 
     public final void atualizar(Set<E> entidades, Set<E> atualizacoes) {
         if (entidades == null) {
@@ -47,14 +47,14 @@ public abstract sealed class Atualizar<E> permits
         Set<E> naoConsumidos = reconciliar(entidades, semId, idsUsados);
 
         salvarNovo(entidades, naoConsumidos);
-    };
+    }
 
     private void salvarNovo(Set<E> entidades, Set<E> novas) {
         for (E nova : novas) {
             salvarNovo(nova);
             entidades.add(nova);
         }
-    };
+    }
 
     protected abstract void aplicarAtualizacao(E entidade, E atualizacao);
 
