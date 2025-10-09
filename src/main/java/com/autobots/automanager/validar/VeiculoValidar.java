@@ -15,15 +15,15 @@ public class VeiculoValidar implements Validar<VeiculoDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
     private final VeiculoRepositorio repositorio;
-    private final ObjectProvider<UsuarioValidar> provedorValidarUsuario;
+    private final UsuarioValidar validarUsuario;
     private final ObjectProvider<VendaValidar> provedorValidarVenda;
 
     public VeiculoValidar(
             VeiculoRepositorio repositorio,
-            ObjectProvider<UsuarioValidar> provedorValidarUsuario,
+            UsuarioValidar validarUsuario,
             ObjectProvider<VendaValidar> provedorValidarVenda) {
         this.repositorio = repositorio;
-        this.provedorValidarUsuario = provedorValidarUsuario;
+        this.validarUsuario = validarUsuario;
         this.provedorValidarVenda = provedorValidarVenda;
     }
 
@@ -51,25 +51,28 @@ public class VeiculoValidar implements Validar<VeiculoDTO> {
         }
 
         if (entity.getProprietario() != null) {
-            UsuarioValidar validarUsuario = provedorValidarUsuario.getIfAvailable();
-            if (validarUsuario != null) {
-                List<String> errosProprietario = validarUsuario.verificar(entity.getProprietario());
-                if (!errosProprietario.isEmpty()) {
-                    erros.add("- Proprietário:");
-                    errosProprietario.forEach(e -> erros.add("  " + e));
-                }
-            }
+            mesclaErros(erros, validarUsuario.verificar(entity.getProprietario()), "Proprietário");
+        }
+
+        VendaValidar validarVenda = provedorValidarVenda.getIfAvailable();
+        if (validarVenda == null) {
+            return erros;
         }
 
         if (entity.getVendas() != null && !entity.getVendas().isEmpty()) {
-            VendaValidar validarVenda = provedorValidarVenda.getIfAvailable();
-            if (validarVenda != null) {
-                validarVenda.verificar(entity.getVendas())
-                        .forEach(erro -> erros.add("  " + erro));
-            }
+            validarVenda.verificar(entity.getVendas())
+                    .forEach(erro -> erros.add("  " + erro));
         }
 
         return erros;
+    }
+
+    private void mesclaErros(List<String> erros, List<String> novosErros, String tituloErro) {
+        if (novosErros == null || novosErros.isEmpty()) {
+            return;
+        }
+        erros.add("- " + tituloErro + ":");
+        novosErros.forEach(e -> erros.add("  " + e));
     }
 
     @Override

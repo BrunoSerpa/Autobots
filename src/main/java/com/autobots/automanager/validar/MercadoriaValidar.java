@@ -50,10 +50,9 @@ public class MercadoriaValidar implements Validar<MercadoriaDTO> {
             erros.add("- Valor deve ser maior que zero;");
         }
 
-        if (entity.getFabricao() != null && entity.getValidade() != null) {
-            if (entity.getValidade().before(entity.getFabricao())) {
-                erros.add("- Data de validade anterior à data de fabricação;");
-            }
+        if (entity.getFabricao() != null && entity.getValidade() != null
+            && entity.getValidade().before(entity.getFabricao())) {
+            erros.add("- Data de validade anterior à data de fabricação;");
         }
 
         return erros;

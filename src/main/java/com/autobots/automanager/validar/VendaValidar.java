@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.dto.VendaDTO;
@@ -15,19 +14,19 @@ public class VendaValidar implements Validar<VendaDTO> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
     private final VendaRepositorio repositorio;
-    private final ObjectProvider<UsuarioValidar> provedorValidarUsuario;
+    private final UsuarioValidar validarUsuario;
     private final MercadoriaValidar validarMercadoria;
     private final ServicoValidar validarServico;
     private final VeiculoValidar validarVeiculo;
 
     public VendaValidar(
             VendaRepositorio repositorio,
-            ObjectProvider<UsuarioValidar> provedorValidarUsuario,
+            UsuarioValidar validarUsuario,
             MercadoriaValidar validarMercadoria,
             ServicoValidar validarServico,
             VeiculoValidar validarVeiculo) {
         this.repositorio = repositorio;
-        this.provedorValidarUsuario = provedorValidarUsuario;
+        this.validarUsuario = validarUsuario;
         this.validarMercadoria = validarMercadoria;
         this.validarServico = validarServico;
         this.validarVeiculo = validarVeiculo;
@@ -48,25 +47,16 @@ public class VendaValidar implements Validar<VendaDTO> {
             erros.add("- Identificação da venda não informada;");
         }
 
-        UsuarioValidar usuarioValidador = provedorValidarUsuario.getIfAvailable();
         if (entity.getCliente() == null) {
             erros.add("- Cliente não informado;");
-        } else if (usuarioValidador != null) {
-            List<String> errosCli = usuarioValidador.verificar(entity.getCliente());
-            if (!errosCli.isEmpty()) {
-                erros.add("- Cliente:");
-                errosCli.forEach(e -> erros.add("  " + e));
-            }
+        } else {
+            mesclaErros(erros, validarUsuario.verificar(entity.getCliente()), "Cliente");
         }
 
         if (entity.getFuncionario() == null) {
             erros.add("- Funcionário não informado;");
-        } else if (usuarioValidador != null) {
-            List<String> errosFun = usuarioValidador.verificar(entity.getFuncionario());
-            if (!errosFun.isEmpty()) {
-                erros.add("- Funcionário:");
-                errosFun.forEach(e -> erros.add("  " + e));
-            }
+        } else {
+            mesclaErros(erros, validarUsuario.verificar(entity.getFuncionario()), "Funcionário");
         }
 
         if (entity.getMercadorias() != null && !entity.getMercadorias().isEmpty()) {
@@ -80,14 +70,18 @@ public class VendaValidar implements Validar<VendaDTO> {
         }
 
         if (entity.getVeiculo() != null) {
-            List<String> errosVeic = validarVeiculo.verificar(entity.getVeiculo());
-            if (!errosVeic.isEmpty()) {
-                erros.add("- Veículo:");
-                errosVeic.forEach(e -> erros.add("  " + e));
-            }
+            mesclaErros(erros, validarVeiculo.verificar(entity.getVeiculo()), "Veículo");
         }
 
         return erros;
+    }
+
+    private void mesclaErros(List<String> erros, List<String> novosErros, String tituloErro) {
+        if (novosErros == null || novosErros.isEmpty()) {
+            return;
+        }
+        erros.add("- " + tituloErro + ":");
+        novosErros.forEach(e -> erros.add("  " + e));
     }
 
     @Override

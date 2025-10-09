@@ -18,84 +18,36 @@ public class UsuarioValidar implements Validar<UsuarioDTO> {
     private final EnderecoValidar validarEndereco;
     private final TelefoneValidar validarTelefone;
     private final EmailValidar validarEmail;
-    private final CredencialValidar validarCredencial;
-    private final MercadoriaValidar validarMercadoria;
-    private final VendaValidar validarVenda;
-    private final VeiculoValidar validarVeiculo;
 
     public UsuarioValidar(
             UsuarioRepositorio repositorio,
             DocumentoValidar validarDocumento,
             EnderecoValidar validarEndereco,
             TelefoneValidar validarTelefone,
-            EmailValidar validarEmail,
-            CredencialValidar validarCredencial,
-            MercadoriaValidar validarMercadoria,
-            VendaValidar validarVenda,
-            VeiculoValidar validarVeiculo) {
+            EmailValidar validarEmail) {
         this.repositorio = repositorio;
         this.validarDocumento = validarDocumento;
         this.validarEndereco = validarEndereco;
         this.validarTelefone = validarTelefone;
         this.validarEmail = validarEmail;
-        this.validarCredencial = validarCredencial;
-        this.validarMercadoria = validarMercadoria;
-        this.validarVenda = validarVenda;
-        this.validarVeiculo = validarVeiculo;
     }
 
     @Override
     public List<String> verificar(UsuarioDTO entity) {
         List<String> erros = new ArrayList<>();
 
-        if (entity.getId() != null && !repositorio.findById(entity.getId()).isPresent()) {
-            erros.add("- Usuário não cadastrado;");
-        } else if (NULO.verificar(entity.getNome())) {
-            erros.add("- Nome não informado;");
-        }
-
-        if (entity.getDocumentos() == null || entity.getDocumentos().isEmpty()) {
-            erros.add("- Pelo menos um documento deve ser informado;");
-        } else {
-            validarDocumento.verificar(entity.getDocumentos())
-                    .forEach(erro -> erros.add(" " + erro));
-        }
-
-        if (entity.getEndereco() != null) {
-            List<String> errosEndereco = validarEndereco.verificar(entity.getEndereco());
-            if (!errosEndereco.isEmpty()) {
-                erros.add("- Endereço:");
-                errosEndereco.forEach(erro -> erros.add(" " + erro));
-            }
-        }
-
-        if (entity.getTelefones() != null && !entity.getTelefones().isEmpty()) {
-            validarTelefone.verificar(entity.getTelefones())
-                    .forEach(erro -> erros.add(" " + erro));
-        }
+        validarDocumentos(entity, erros);
+        validarEnderecos(entity, erros);
+        validarIdENome(entity, erros);
+        validarPerfis(entity, erros);
 
         if (entity.getEmails() != null && !entity.getEmails().isEmpty()) {
             validarEmail.verificar(entity.getEmails())
                     .forEach(erro -> erros.add(" " + erro));
         }
 
-        if (entity.getCredenciais() != null && !entity.getCredenciais().isEmpty()) {
-            validarCredencial.verificar(entity.getCredenciais())
-                    .forEach(erro -> erros.add(" " + erro));
-        }
-
-        if (entity.getMercadorias() != null && !entity.getMercadorias().isEmpty()) {
-            validarMercadoria.verificar(entity.getMercadorias())
-                    .forEach(erro -> erros.add(" " + erro));
-        }
-
-        if (entity.getVendas() != null && !entity.getVendas().isEmpty()) {
-            validarVenda.verificar(entity.getVendas())
-                    .forEach(erro -> erros.add(" " + erro));
-        }
-
-        if (entity.getVeiculos() != null && !entity.getVeiculos().isEmpty()) {
-            validarVeiculo.verificar(entity.getVeiculos())
+        if (entity.getTelefones() != null && !entity.getTelefones().isEmpty()) {
+            validarTelefone.verificar(entity.getTelefones())
                     .forEach(erro -> erros.add(" " + erro));
         }
 
@@ -117,5 +69,37 @@ public class UsuarioValidar implements Validar<UsuarioDTO> {
         }
 
         return erros;
+    }
+  
+    private void validarDocumentos(UsuarioDTO entity, List<String> erros) {
+        if (entity.getDocumentos() == null || entity.getDocumentos().isEmpty()) {
+            erros.add("- Pelo menos um documento deve ser informado;");
+            return;
+        }
+        validarDocumento.verificar(entity.getDocumentos())
+                .forEach(erro -> erros.add(" " + erro));
+    }
+
+    private void validarEnderecos(UsuarioDTO entity, List<String> erros) {
+        if (entity.getEndereco() == null) {
+            return;
+        }
+        erros.add("- Endereço:");
+        validarEndereco.verificar(entity.getEndereco())
+                .forEach(erro -> erros.add(" " + erro));
+    }
+
+    private void validarIdENome(UsuarioDTO entity, List<String> erros) {
+        if (entity.getId() != null && !repositorio.findById(entity.getId()).isPresent()) {
+            erros.add("- Usuário não cadastrado;");
+        } else if (NULO.verificar(entity.getNome())) {
+            erros.add("- Nome não informado;");
+        }
+    }
+
+    private void validarPerfis(UsuarioDTO entity, List<String> erros) {
+        if (entity.getPerfis() == null || entity.getPerfis().isEmpty()) {
+            erros.add("- Pelo menos um perfil deve ser informado;");
+        }
     }
 }
