@@ -14,9 +14,11 @@ import com.autobots.automanager.entidades.CredencialCodigoBarra;
 import com.autobots.automanager.entidades.CredencialUsuarioSenha;
 import com.autobots.automanager.repositorios.CredencialCodigoBarraRepositorio;
 import com.autobots.automanager.repositorios.CredencialUsuarioSenhaRepositorio;
+import com.autobots.automanager.validar.StringVerificadorNulo;
 
 @Component
 public class CredencialAtualizador {
+    private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
     private final CredencialCodigoBarraRepositorio repositorioCodigoBarra;
     private final CredencialUsuarioSenhaRepositorio repositorioUsuarioSenha;
 
@@ -35,18 +37,22 @@ public class CredencialAtualizador {
         existente.setUltimoAcesso(atualizacao.getUltimoAcesso());
 
         if (existente instanceof CredencialUsuarioSenha e && atualizacao instanceof CredencialUsuarioSenha a) {
-            if (a.getNomeUsuario() != null && !a.getNomeUsuario().isBlank()) {
-                e.setNomeUsuario(a.getNomeUsuario());
-            }
-            if (a.getSenha() != null && !a.getSenha().isBlank()) {
-                e.setSenha(a.getSenha());
-            }
+            atualizarUsuarioSenha(e, a);
         }
 
         if (existente instanceof CredencialCodigoBarra e && atualizacao instanceof CredencialCodigoBarra a) {
             if (a.getCodigo() > 0) {
                 e.setCodigo(a.getCodigo());
             }
+        }
+    }
+
+    private void atualizarUsuarioSenha(CredencialUsuarioSenha existente, CredencialUsuarioSenha atualizacao) {
+        if (!NULO.verificar(atualizacao.getNomeUsuario())) {
+            existente.setNomeUsuario(atualizacao.getNomeUsuario());
+        }
+        if (!NULO.verificar(atualizacao.getSenha())) {
+            existente.setSenha(atualizacao.getSenha());
         }
     }
 
@@ -107,9 +113,6 @@ public class CredencialAtualizador {
     }
 
     public void deletar(Credencial existente) {
-        if (existente == null)
-            return;
-
         if (existente instanceof CredencialUsuarioSenha e) {
             repositorioUsuarioSenha.delete(e);
         } else if (existente instanceof CredencialCodigoBarra e) {
