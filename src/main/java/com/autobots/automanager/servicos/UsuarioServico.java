@@ -71,7 +71,7 @@ public class UsuarioServico {
 					ERRO_ENCONTRADO + "\n" + detalhes);
 		}
 
-		Usuario entidade = conversor.convertToEntity(dto);
+		Usuario entidade = atualizador.atualizar(null, conversor.convertToEntity(dto));
 		Usuario salvo = repositorio.save(entidade);
 		log.info("Usuário cadastrado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);

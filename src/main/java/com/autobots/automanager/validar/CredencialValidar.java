@@ -46,7 +46,7 @@ public class CredencialValidar implements Validar<CredencialDTO> {
         } else if (codigo != 0) {
             validarCodigoBarra(codigo, erros);
         } else {
-            erros.add("- Tipo de credencial não reconhecido; informe usuário/senha ou código de barras.");
+            erros.add("- Tipo de credencial não reconhecido;");
         }
 
         return erros;

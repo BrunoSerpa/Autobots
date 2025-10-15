@@ -17,6 +17,7 @@ import com.autobots.automanager.validar.StringVerificadorNulo;
 public final class UsuarioAtualizador extends Atualizar<Usuario> {
     private static final StringVerificadorNulo NULO = new StringVerificadorNulo();
 
+    private final CredencialAtualizador atualizadorCredencial;
     private final DocumentoAtualizador atualizadorDocumento;
     private final EmailAtualizador atualizadorEmail;
     private final EnderecoAtualizador atualizadorEndereco;
@@ -24,12 +25,14 @@ public final class UsuarioAtualizador extends Atualizar<Usuario> {
     private final VeiculoAtualizador atualizadorVeiculo;
     private final UsuarioRepositorio repositorio;
 
-    public UsuarioAtualizador(DocumentoAtualizador atualizadorDocumento,
+    public UsuarioAtualizador(CredencialAtualizador atualizadorCredencial,
+            DocumentoAtualizador atualizadorDocumento,
             EmailAtualizador atualizadorEmail,
             EnderecoAtualizador atualizadorEndereco,
             TelefoneAtualizador atualizadorTelefone,
             VeiculoAtualizador atualizadorVeiculo,
             UsuarioRepositorio repositorio) {
+        this.atualizadorCredencial = atualizadorCredencial;
         this.atualizadorDocumento = atualizadorDocumento;
         this.atualizadorEmail = atualizadorEmail;
         this.atualizadorEndereco = atualizadorEndereco;
@@ -49,6 +52,7 @@ public final class UsuarioAtualizador extends Atualizar<Usuario> {
 
         entidade.setEndereco(atualizadorEndereco.atualizar(entidade.getEndereco(), atualizacao.getEndereco()));
 
+        atualizadorCredencial.atualizar(entidade.getCredenciais(), atualizacao.getCredenciais());
         atualizadorDocumento.atualizar(entidade.getDocumentos(), atualizacao.getDocumentos());
         atualizadorEmail.atualizar(entidade.getEmails(), atualizacao.getEmails());
         atualizadorTelefone.atualizar(entidade.getTelefones(), atualizacao.getTelefones());
