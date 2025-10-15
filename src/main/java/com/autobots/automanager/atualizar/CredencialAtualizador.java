@@ -28,15 +28,13 @@ public class CredencialAtualizador {
     }
 
     public void atualizar(Credencial existente, Credencial atualizacao) {
-        if (existente == null || atualizacao == null) return;
+        if (existente == null || atualizacao == null)
+            return;
 
         existente.setInativo(atualizacao.isInativo());
         existente.setUltimoAcesso(atualizacao.getUltimoAcesso());
 
-        if (existente instanceof CredencialUsuarioSenha && atualizacao instanceof CredencialUsuarioSenha) {
-            CredencialUsuarioSenha e = (CredencialUsuarioSenha) existente;
-            CredencialUsuarioSenha a = (CredencialUsuarioSenha) atualizacao;
-
+        if (existente instanceof CredencialUsuarioSenha e && atualizacao instanceof CredencialUsuarioSenha a) {
             if (a.getNomeUsuario() != null && !a.getNomeUsuario().isBlank()) {
                 e.setNomeUsuario(a.getNomeUsuario());
             }
@@ -45,10 +43,7 @@ public class CredencialAtualizador {
             }
         }
 
-        if (existente instanceof CredencialCodigoBarra && atualizacao instanceof CredencialCodigoBarra) {
-            CredencialCodigoBarra e = (CredencialCodigoBarra) existente;
-            CredencialCodigoBarra a = (CredencialCodigoBarra) atualizacao;
-
+        if (existente instanceof CredencialCodigoBarra e && atualizacao instanceof CredencialCodigoBarra a) {
             if (a.getCodigo() > 0) {
                 e.setCodigo(a.getCodigo());
             }
@@ -103,21 +98,22 @@ public class CredencialAtualizador {
     }
 
     public Credencial salvarNovo(Credencial nova) {
-        if (nova instanceof CredencialUsuarioSenha) {
-            return repositorioUsuarioSenha.save((CredencialUsuarioSenha) nova);
-        } else if (nova instanceof CredencialCodigoBarra) {
-            return repositorioCodigoBarra.save((CredencialCodigoBarra) nova);
+        if (nova instanceof CredencialUsuarioSenha e) {
+            return repositorioUsuarioSenha.save(e);
+        } else if (nova instanceof CredencialCodigoBarra e) {
+            return repositorioCodigoBarra.save(e);
         }
         throw new IllegalArgumentException("Tipo de credencial não suportado");
     }
 
     public void deletar(Credencial existente) {
-        if (existente == null) return;
+        if (existente == null)
+            return;
 
-        if (existente instanceof CredencialUsuarioSenha) {
-            repositorioUsuarioSenha.delete((CredencialUsuarioSenha) existente);
-        } else if (existente instanceof CredencialCodigoBarra) {
-            repositorioCodigoBarra.delete((CredencialCodigoBarra) existente);
+        if (existente instanceof CredencialUsuarioSenha e) {
+            repositorioUsuarioSenha.delete(e);
+        } else if (existente instanceof CredencialCodigoBarra e) {
+            repositorioCodigoBarra.delete(e);
         }
     }
 }

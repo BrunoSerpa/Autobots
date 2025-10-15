@@ -1,12 +1,5 @@
 package com.autobots.automanager.converter;
 
-import com.autobots.automanager.dto.CredencialDTO;
-import com.autobots.automanager.dto.UsuarioDTO;
-import com.autobots.automanager.entidades.Credencial;
-import com.autobots.automanager.entidades.CredencialUsuarioSenha;
-import com.autobots.automanager.entidades.CredencialCodigoBarra;
-import com.autobots.automanager.entidades.Usuario;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,8 +9,16 @@ import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
 
+import com.autobots.automanager.dto.CredencialDTO;
+import com.autobots.automanager.dto.UsuarioDTO;
+import com.autobots.automanager.entidades.Credencial;
+import com.autobots.automanager.entidades.CredencialCodigoBarra;
+import com.autobots.automanager.entidades.CredencialUsuarioSenha;
+import com.autobots.automanager.entidades.Usuario;
+
 @Component
 public class UsuarioConverter implements Converter<Usuario, UsuarioDTO> {
+
     private final ModelMapper modelMapper;
     private TypeMap<UsuarioDTO, Usuario> propertyMapperDto;
     private TypeMap<Usuario, UsuarioDTO> propertyMapperEntity;
@@ -90,11 +91,11 @@ public class UsuarioConverter implements Converter<Usuario, UsuarioDTO> {
                         cdto.setId(c.getId());
                         cdto.setInativo(c.isInativo());
                         cdto.setUltimoAcesso(c.getUltimoAcesso());
-                        if (c instanceof CredencialUsuarioSenha) {
-                            cdto.setNomeUsuario(((CredencialUsuarioSenha) c).getNomeUsuario());
-                            cdto.setSenha(((CredencialUsuarioSenha) c).getSenha());
-                        } else if (c instanceof CredencialCodigoBarra) {
-                            cdto.setCodigo(((CredencialCodigoBarra) c).getCodigo());
+                        if (c instanceof CredencialUsuarioSenha e) {
+                            cdto.setNomeUsuario(e.getNomeUsuario());
+                            cdto.setSenha(e.getSenha());
+                        } else if (c instanceof CredencialCodigoBarra e) {
+                            cdto.setCodigo(e.getCodigo());
                         }
                         return cdto;
                     })
