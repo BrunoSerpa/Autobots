@@ -30,8 +30,9 @@ public class CredencialAtualizador {
     }
 
     public void atualizar(Credencial existente, Credencial atualizacao) {
-        if (existente == null || atualizacao == null)
+        if (existente == null || atualizacao == null) {
             return;
+        }
 
         existente.setInativo(atualizacao.isInativo());
         existente.setUltimoAcesso(atualizacao.getUltimoAcesso());
@@ -40,10 +41,9 @@ public class CredencialAtualizador {
             atualizarUsuarioSenha(e, a);
         }
 
-        if (existente instanceof CredencialCodigoBarra e && atualizacao instanceof CredencialCodigoBarra a) {
-            if (a.getCodigo() > 0) {
-                e.setCodigo(a.getCodigo());
-            }
+        if (existente instanceof CredencialCodigoBarra e && atualizacao instanceof CredencialCodigoBarra a
+                && a.getCodigo() > 0) {
+            e.setCodigo(a.getCodigo());
         }
     }
 
