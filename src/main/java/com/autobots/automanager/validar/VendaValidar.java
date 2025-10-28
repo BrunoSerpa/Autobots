@@ -38,23 +38,23 @@ public class VendaValidar implements Validar<VendaDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Venda não cadastrada;");
+                erros.add("- Venda não cadastrada");
             }
             return erros;
         }
 
         if (NULO.verificar(entity.getIdentificacao())) {
-            erros.add("- Identificação da venda não informada;");
+            erros.add("- Identificação da venda não informada");
         }
 
         if (entity.getCliente() == null) {
-            erros.add("- Cliente não informado;");
+            erros.add("- Cliente não informado");
         } else {
             mesclaErros(erros, validarUsuario.verificar(entity.getCliente()), "Cliente");
         }
 
         if (entity.getFuncionario() == null) {
-            erros.add("- Funcionário não informado;");
+            erros.add("- Funcionário não informado");
         } else {
             mesclaErros(erros, validarUsuario.verificar(entity.getFuncionario()), "Funcionário");
         }

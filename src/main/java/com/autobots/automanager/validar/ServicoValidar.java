@@ -25,17 +25,17 @@ public class ServicoValidar implements Validar<ServicoDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Serviço não cadastrado;");
+                erros.add("- Serviço não cadastrado");
             }
             return erros;
         }
 
         if (NULO.verificar(entity.getNome())) {
-            erros.add("- Nome do serviço não informado;");
+            erros.add("- Nome do serviço não informado");
         }
 
         if (entity.getValor() <= 0) {
-            erros.add("- Valor do serviço deve ser maior que zero;");
+            erros.add("- Valor do serviço deve ser maior que zero");
         }
 
         return erros;

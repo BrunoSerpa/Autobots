@@ -106,7 +106,7 @@ public class UsuarioValidar implements Validar<UsuarioDTO> {
 
     private void validarCredenciais(UsuarioDTO entity, List<String> erros) {
         if (entity.getCredenciais() == null || entity.getCredenciais().isEmpty()) {
-            erros.add("- Pelo menos uma credencial deve ser informada;");
+            erros.add("- Pelo menos uma credencial deve ser informada");
             return;
         }
         validarCredencial.verificar(entity.getCredenciais())
@@ -115,7 +115,7 @@ public class UsuarioValidar implements Validar<UsuarioDTO> {
 
     private void validarDocumentos(UsuarioDTO entity, List<String> erros) {
         if (entity.getDocumentos() == null || entity.getDocumentos().isEmpty()) {
-            erros.add("- Pelo menos um documento deve ser informado;");
+            erros.add("- Pelo menos um documento deve ser informado");
             return;
         }
         validarDocumento.verificar(entity.getDocumentos())
@@ -136,15 +136,15 @@ public class UsuarioValidar implements Validar<UsuarioDTO> {
 
     private void validarIdENome(UsuarioDTO entity, List<String> erros) {
         if (entity.getId() != null && !repositorio.findById(entity.getId()).isPresent()) {
-            erros.add("- Usuário não cadastrado;");
+            erros.add("- Usuário não cadastrado");
         } else if (NULO.verificar(entity.getNome())) {
-            erros.add("- Nome não informado;");
+            erros.add("- Nome não informado");
         }
     }
 
     private void validarPerfis(UsuarioDTO entity, List<String> erros) {
         if (entity.getPerfis() == null || entity.getPerfis().isEmpty()) {
-            erros.add("- Pelo menos um perfil deve ser informado;");
+            erros.add("- Pelo menos um perfil deve ser informado");
         }
     }
 }

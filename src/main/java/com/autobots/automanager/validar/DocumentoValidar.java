@@ -25,21 +25,21 @@ public class DocumentoValidar implements Validar<DocumentoDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Documento não cadastrado;");
+                erros.add("- Documento não cadastrado");
             }
             return erros;
         }
 
         if (entity.getTipo() == null) {
-            erros.add("- Tipo de documento não informado;");
+            erros.add("- Tipo de documento não informado");
         }
 
         if (entity.getDataEmissao() == null) {
-            erros.add("- Data de emissão não informada;");
+            erros.add("- Data de emissão não informada");
         }
 
         if (NULO.verificar(entity.getNumero())) {
-            erros.add("- Número do documento não informado;");
+            erros.add("- Número do documento não informado");
         } else {
             repositorio.findByNumero(entity.getNumero())
                     .ifPresent(doc -> erros.add("- Documento já cadastrado;"));

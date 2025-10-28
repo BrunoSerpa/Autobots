@@ -33,21 +33,21 @@ public class VeiculoValidar implements Validar<VeiculoDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Veículo não cadastrado;");
+                erros.add("- Veículo não cadastrado");
             }
             return erros;
         }
 
         if (entity.getTipo() == null) {
-            erros.add("- Tipo de veículo não informado;");
+            erros.add("- Tipo de veículo não informado");
         }
 
         if (NULO.verificar(entity.getModelo())) {
-            erros.add("- Modelo do veículo não informado;");
+            erros.add("- Modelo do veículo não informado");
         }
 
         if (NULO.verificar(entity.getPlaca())) {
-            erros.add("- Placa do veículo não informada;");
+            erros.add("- Placa do veículo não informada");
         }
 
         if (entity.getProprietario() != null) {

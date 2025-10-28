@@ -25,17 +25,17 @@ public class TelefoneValidar implements Validar<TelefoneDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Telefone não cadastrado;");
+                erros.add("- Telefone não cadastrado");
             }
             return erros;
         }
 
         if (NULO.verificar(entity.getDdd())) {
-            erros.add("- DDD não informado;");
+            erros.add("- DDD não informado");
         }
 
         if (NULO.verificar(entity.getNumero())) {
-            erros.add("- Número de telefone não informado;");
+            erros.add("- Número de telefone não informado");
         }
 
         return erros;

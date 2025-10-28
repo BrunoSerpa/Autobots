@@ -32,7 +32,7 @@ public class CredencialValidar implements Validar<CredencialDTO> {
             boolean existe = repositorioCodigoBarra.findById(entity.getId()).isPresent()
                     || repositorioUsuarioSenha.findById(entity.getId()).isPresent();
             if (!existe) {
-                erros.add("- Credencial não cadastrada;");
+                erros.add("- Credencial não cadastrada");
             }
             return erros;
         }
@@ -46,7 +46,7 @@ public class CredencialValidar implements Validar<CredencialDTO> {
         } else if (codigo != 0) {
             validarCodigoBarra(codigo, erros);
         } else {
-            erros.add("- Tipo de credencial não reconhecido;");
+            erros.add("- Tipo de credencial não reconhecido");
         }
 
         return erros;
@@ -54,23 +54,23 @@ public class CredencialValidar implements Validar<CredencialDTO> {
 
     private void validarUsuarioSenha(String nomeUsuario, String senha, List<String> erros) {
         if (NULO.verificar(nomeUsuario)) {
-            erros.add("- Nome de usuário não informado;");
+            erros.add("- Nome de usuário não informado");
         } else if (repositorioUsuarioSenha.findByNomeUsuario(nomeUsuario).isPresent()) {
-            erros.add("- Nome de usuário já cadastrado;");
+            erros.add("- Nome de usuário já cadastrado");
         }
 
         if (NULO.verificar(senha)) {
-            erros.add("- Senha não informada;");
+            erros.add("- Senha não informada");
         } else if (senha.length() < 6) {
-            erros.add("- Senha deve ter pelo menos 6 caracteres;");
+            erros.add("- Senha deve ter pelo menos 6 caracteres");
         }
     }
 
     private void validarCodigoBarra(long codigo, List<String> erros) {
         if (codigo <= 0) {
-            erros.add("- Código de barras inválido;");
+            erros.add("- Código de barras inválido");
         } else if (repositorioCodigoBarra.findByCodigo(codigo).isPresent()) {
-            erros.add("- Código de barras já cadastrado;");
+            erros.add("- Código de barras já cadastrado");
         }
     }
 

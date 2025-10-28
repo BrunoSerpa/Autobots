@@ -25,13 +25,13 @@ public class EmailValidar implements Validar<EmailDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Email não cadastrado;");
+                erros.add("- Email não cadastrado");
             }
             return erros;
         }
 
         if (NULO.verificar(entity.getEndereco())) {
-            erros.add("- Endereço de email não informado;");
+            erros.add("- Endereço de email não informado");
         }
 
         return erros;

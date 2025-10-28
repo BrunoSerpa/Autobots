@@ -25,33 +25,33 @@ public class EnderecoValidar implements Validar<EnderecoDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Endereço não cadastrado;");
+                erros.add("- Endereço não cadastrado");
             }
             return erros;
         }
 
         if (NULO.verificar(entity.getEstado())) {
-            erros.add("- Estado não informado;");
+            erros.add("- Estado não informado");
         }
 
         if (NULO.verificar(entity.getCidade())) {
-            erros.add("- Cidade não informada;");
+            erros.add("- Cidade não informada");
         }
 
         if (NULO.verificar(entity.getBairro())) {
-            erros.add("- Bairro não informado;");
+            erros.add("- Bairro não informado");
         }
 
         if (NULO.verificar(entity.getRua())) {
-            erros.add("- Rua não informada;");
+            erros.add("- Rua não informada");
         }
 
         if (NULO.verificar(entity.getNumero())) {
-            erros.add("- Número não informado;");
+            erros.add("- Número não informado");
         }
 
         if (NULO.verificar(entity.getCodigoPostal())) {
-            erros.add("- Código postal não informado;");
+            erros.add("- Código postal não informado");
         }
 
         return erros;

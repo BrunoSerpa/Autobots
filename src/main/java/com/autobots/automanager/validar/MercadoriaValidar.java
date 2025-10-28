@@ -25,34 +25,34 @@ public class MercadoriaValidar implements Validar<MercadoriaDTO> {
 
         if (entity.getId() != null) {
             if (!repositorio.findById(entity.getId()).isPresent()) {
-                erros.add("- Mercadoria não cadastrada;");
+                erros.add("- Mercadoria não cadastrada");
             }
             return erros;
         }
 
         if (entity.getValidade() == null) {
-            erros.add("- Data de validade não informada;");
+            erros.add("- Data de validade não informada");
         }
 
         if (entity.getFabricao() == null) {
-            erros.add("- Data de fabricação não informada;");
+            erros.add("- Data de fabricação não informada");
         }
 
         if (NULO.verificar(entity.getNome())) {
-            erros.add("- Nome da mercadoria não informado;");
+            erros.add("- Nome da mercadoria não informado");
         }
 
         if (entity.getQuantidade() <= 0) {
-            erros.add("- Quantidade deve ser maior que zero;");
+            erros.add("- Quantidade deve ser maior que zero");
         }
 
         if (entity.getValor() <= 0) {
-            erros.add("- Valor deve ser maior que zero;");
+            erros.add("- Valor deve ser maior que zero");
         }
 
         if (entity.getFabricao() != null && entity.getValidade() != null
             && entity.getValidade().before(entity.getFabricao())) {
-            erros.add("- Data de validade anterior à data de fabricação;");
+            erros.add("- Data de validade anterior à data de fabricação");
         }
 
         return erros;
