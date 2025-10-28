@@ -7,8 +7,6 @@ import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.validar.UsuarioValidar;
 
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -17,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@Slf4j
 @Service
 public class UsuarioServico {
 	private static final String NAO_ENCONTRADO = "Usuário não encontrado.";
@@ -41,14 +38,12 @@ public class UsuarioServico {
 
 	public UsuarioDTO procurar(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido: {}", id);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 		return repositorio.findById(id)
 				.map(conversor::convertToDto)
 				.orElseThrow(() -> {
-					log.warn("Usuário não encontrado: id={}", id);
 					return new ResponseStatusException(
 							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
@@ -65,7 +60,6 @@ public class UsuarioServico {
 		List<String> erros = validar.verificar(dto);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("", erros);
-			log.warn("Dados inválidos no cadastro: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + "\n" + detalhes);
@@ -73,21 +67,18 @@ public class UsuarioServico {
 
 		Usuario entidade = atualizador.atualizar(null, conversor.convertToEntity(dto));
 		Usuario salvo = repositorio.save(entidade);
-		log.info("Usuário cadastrado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
 	public UsuarioDTO atualizar(@Valid UsuarioDTO dto) {
 		Long id = dto.getId();
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao atualizar: {}", id);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 		
 		Usuario existente = repositorio.findById(id)
 				.orElseThrow(() -> {
-					log.warn("Usuário não encontrado ao atualizar: id={}", id);
 					return new ResponseStatusException(
 							HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
@@ -95,7 +86,6 @@ public class UsuarioServico {
 		List<String> erros = validar.verificar(dto);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
-			log.warn("Dados inválidos na atualização: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
@@ -103,25 +93,21 @@ public class UsuarioServico {
 
 		atualizador.atualizar(existente, conversor.convertToEntity(dto));
 		Usuario salvo = repositorio.save(existente);
-		log.info("Usuário atualizado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
 	public void excluir(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao excluir: {}", id);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		boolean existe = repositorio.existsById(id);
 		if (!existe) {
-			log.warn("Usuário não encontrado ao excluir: id={}", id);
 			throw new ResponseStatusException(
 					HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 		}
 
 		repositorio.deleteById(id);
-		log.info("Usuário excluído: id={}", id);
 	}
 }

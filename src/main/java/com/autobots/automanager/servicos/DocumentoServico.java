@@ -11,7 +11,7 @@ import com.autobots.automanager.repositorios.DocumentoRepositorio;
 import com.autobots.automanager.validar.DocumentoValidar;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.TreeSet;
 
-@Slf4j
 @Service
 public class DocumentoServico {
 	private static final String NAO_ENCONTRADO = "Documento não encontrado.";
@@ -50,13 +49,11 @@ public class DocumentoServico {
 
 	public DocumentoDTO procurar(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido na procura de documento: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 		return repositorio.findById(id)
 				.map(conversor::convertToDto)
 				.orElseThrow(() -> {
-					log.warn("Documento não encontrado ao procurar: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 	}
@@ -70,14 +67,12 @@ public class DocumentoServico {
 
 	public DocumentoDTO cadastro(Long idUsuario, @Valid DocumentoDTO documentoDTO) {
 		if (idUsuario == null || idUsuario <= 0) {
-			log.warn("ID de cliente inválido no cadastro de documento: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		List<String> erros = validar.verificar(documentoDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
-			log.warn("Dados inválidos no cadastro de documento: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
@@ -90,27 +85,23 @@ public class DocumentoServico {
 		cliente = servicoUsuario.procurar(idUsuario);
 
 		DocumentoDTO criado = ((TreeSet<DocumentoDTO>) cliente.getDocumentos()).last();
-		log.info("Documento cadastrado: idUsuario={}, idDocumento={}", idUsuario, criado.getId());
 		return criado;
 	}
 
 	public DocumentoDTO atualizar(@Valid DocumentoDTO documentoDTO) {
 		Long id = documentoDTO.getId();
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao atualizar documento: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
 		}
 
 		Documento existente = repositorio.findById(id)
 				.orElseThrow(() -> {
-					log.warn("Documento não encontrado ao atualizar: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
 		List<String> erros = validar.verificar(documentoDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
-			log.warn("Dados inválidos na atualização de documento: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
@@ -118,19 +109,16 @@ public class DocumentoServico {
 
 		atualizador.atualizar(existente, conversor.convertToEntity(documentoDTO));
 		Documento salvo = repositorio.save(existente);
-		log.info("Documento atualizado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
 	public void excluir(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao excluir documento: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		Usuario cliente = repositorioUsuario.findOneByDocumentosId(id)
 				.orElseThrow(() -> {
-					log.warn("Documento não encontrado em cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
@@ -138,12 +126,10 @@ public class DocumentoServico {
 				.filter(d -> d.getId().equals(id))
 				.findFirst()
 				.orElseThrow(() -> {
-					log.warn("Documento não encontrado na lista do cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
 		cliente.getDocumentos().remove(documento);
 		repositorioUsuario.save(cliente);
-		log.info("Documento excluído: id={}", id);
 	}
 }

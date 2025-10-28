@@ -11,7 +11,6 @@ import com.autobots.automanager.repositorios.TelefoneRepositorio;
 import com.autobots.automanager.validar.TelefoneValidar;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.TreeSet;
 
-@Slf4j
 @Service
 public class TelefoneServico {
 	private static final String NAO_ENCONTRADO = "Telefone não encontrado.";
@@ -50,14 +48,12 @@ public class TelefoneServico {
 
 	public TelefoneDTO procurar(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido na procura de telefone: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		return repositorio.findById(id)
 				.map(conversor::convertToDto)
 				.orElseThrow(() -> {
-					log.warn("Telefone não encontrado ao procurar: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 	}
@@ -71,14 +67,12 @@ public class TelefoneServico {
 
 	public TelefoneDTO cadastro(Long idUsuario, @Valid TelefoneDTO telefoneDTO) {
 		if (idUsuario == null || idUsuario <= 0) {
-			log.warn("ID de cliente inválido no cadastro de telefone: {}", idUsuario);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
-			log.warn("Dados inválidos no cadastro de telefone: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
@@ -90,28 +84,23 @@ public class TelefoneServico {
 		cliente = servicoUsuario.procurar(idUsuario);
 
 		TelefoneDTO criado = ((TreeSet<TelefoneDTO>) cliente.getTelefones()).last();
-		log.info("Telefone cadastrado: idUsuario={}, idTelefone={}",
-				idUsuario, criado.getId());
 		return criado;
 	}
 
 	public TelefoneDTO atualizar(@Valid TelefoneDTO telefoneDTO) {
 		Long id = telefoneDTO.getId();
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao atualizar telefone: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_ID);
 		}
 
 		Telefone existente = repositorio.findById(id)
 				.orElseThrow(() -> {
-					log.warn("Telefone não encontrado ao atualizar: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
 		List<String> erros = validar.verificar(telefoneDTO);
 		if (!erros.isEmpty()) {
 			String detalhes = String.join("; ", erros);
-			log.warn("Dados inválidos na atualização de telefone: {}", detalhes);
 			throw new ResponseStatusException(
 					HttpStatus.BAD_REQUEST,
 					ERRO_ENCONTRADO + " " + detalhes);
@@ -119,20 +108,16 @@ public class TelefoneServico {
 
 		atualizador.atualizar(existente, conversor.convertToEntity(telefoneDTO));
 		Telefone salvo = repositorio.save(existente);
-
-		log.info("Telefone atualizado: id={}", salvo.getId());
 		return conversor.convertToDto(salvo);
 	}
 
 	public void excluir(Long id) {
 		if (id == null || id <= 0) {
-			log.warn("ID inválido ao excluir telefone: {}", id);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ID_INVALIDO);
 		}
 
 		Usuario cliente = repositorioUsuario.findOneByTelefonesId(id)
 				.orElseThrow(() -> {
-					log.warn("Telefone não encontrado em cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
@@ -140,13 +125,10 @@ public class TelefoneServico {
 				.filter(t -> t.getId().equals(id))
 				.findFirst()
 				.orElseThrow(() -> {
-					log.warn("Telefone não encontrado na lista do cliente ao excluir: id={}", id);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, NAO_ENCONTRADO);
 				});
 
 		cliente.getTelefones().remove(telefone);
 		repositorioUsuario.save(cliente);
-
-		log.info("Telefone excluído: id={}", id);
 	}
 }
