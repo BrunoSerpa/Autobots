@@ -1,18 +1,21 @@
 package com.autobots.automanager.entidades;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
 @Entity
 public class CredencialCodigoBarra extends Credencial {
 	@Column(nullable = false, unique = true)
-	private long codigo;
+	private double codigo;
 
-	public long getCodigo() {
+	public double getCodigo() {
 		return codigo;
 	}
 
-	public void setCodigo(long codigo) {
+	public void setCodigo(double codigo) {
 		this.codigo = codigo;
 	}
 }

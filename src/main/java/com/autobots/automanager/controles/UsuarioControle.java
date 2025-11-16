@@ -1,28 +1,10 @@
 package com.autobots.automanager.controles;
 
-import com.autobots.automanager.dto.UsuarioDTO;
-import com.autobots.automanager.modelos.UsuarioModelo;
-import com.autobots.automanager.servicos.UsuarioServico;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Content;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import java.net.URI;
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,124 +14,164 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import com.autobots.automanager.entidades.Empresa;
+import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.entidades.Veiculo;
+import com.autobots.automanager.entidades.Venda;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.modelos.AdicionadorLinkUsuario;
+import com.autobots.automanager.repositorios.EmpresaRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
+import com.autobots.automanager.repositorios.VeiculoRepositorio;
+import com.autobots.automanager.repositorios.VendaRepositorio;
 
 @RestController
 @RequestMapping("/usuario")
-@Validated
-@Tag(name = "Usuário", description = "Operações CRUD de usuários")
-@RequiredArgsConstructor
 public class UsuarioControle {
-        private final UsuarioServico servico;
-        private final UsuarioModelo modelo;
-
-        @Operation(summary = "Listar todos os usuários")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
-                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
-        })
-        @GetMapping("todos")
-        public CollectionModel<EntityModel<UsuarioDTO>> listarTodos() {
-                List<EntityModel<UsuarioDTO>> lista = servico.todos().stream()
-                                .map(modelo::toModel)
-                                .toList();
-
-                return CollectionModel.of(lista,
-                                linkTo(methodOn(UsuarioControle.class).listarTodos()).withSelfRel(),
-                                linkTo(methodOn(UsuarioControle.class).cadastrar(null))
-                                                .withRel("cadastrar")
-                                                .withType("POST"));
-        }
-
-        @Operation(summary = "Buscar usuário por ID")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
-        })
-        @GetMapping("buscar/{id}")
-        public ResponseEntity<EntityModel<UsuarioDTO>> buscarPorId(
-                        @PathVariable @Positive(message = "ID deve ser um número positivo") Long id) {
-                UsuarioDTO encontrado = servico.procurar(id);
-
-                EntityModel<UsuarioDTO> model = modelo.toModel(encontrado);
-
-                URI localizacao = linkTo(methodOn(UsuarioControle.class)
-                                .buscarPorId(encontrado.getId())).toUri();
-
-                return ResponseEntity
-                                .created(localizacao)
-                                .header(HttpHeaders.LOCATION, localizacao.toString())
-                                .body(model);
-        }
-
-        @Operation(summary = "Cadastrar um novo usuário")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "Problemas nos dados do usuário", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
-        })
-        @PostMapping("cadastrar")
-        public ResponseEntity<EntityModel<UsuarioDTO>> cadastrar(
-                        @Valid @RequestBody UsuarioDTO clienteDto) {
-                UsuarioDTO criado = servico.cadastro(clienteDto);
-
-                EntityModel<UsuarioDTO> model = modelo.toModel(criado);
-
-                URI localizacao = linkTo(methodOn(UsuarioControle.class)
-                                .buscarPorId(criado.getId())).toUri();
-
-                return ResponseEntity
-                                .created(localizacao)
-                                .header(HttpHeaders.LOCATION, localizacao.toString())
-                                .body(model);
-        }
-
-        @Operation(summary = "Atualizar um cliente existente")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = UsuarioDTO.class))),
-                        @ApiResponse(responseCode = "400", description = "ID inválido ou problemas nos dados do usuário", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
-        })
-        @PutMapping("atualizar/{id}")
-        public ResponseEntity<EntityModel<UsuarioDTO>> atualizar(
-                        @PathVariable @Positive(message = "ID deve ser um número positivo") Long id,
-                        @Valid @RequestBody UsuarioDTO clienteDto) {
-                clienteDto.setId(id);
-
-                UsuarioDTO atualizado = servico.atualizar(clienteDto);
-
-                EntityModel<UsuarioDTO> model = modelo.toModel(atualizado);
-
-                URI localizacao = linkTo(methodOn(UsuarioControle.class)
-                                .buscarPorId(atualizado.getId())).toUri();
-
-                return ResponseEntity
-                                .created(localizacao)
-                                .header(HttpHeaders.LOCATION, localizacao.toString())
-                                .body(model);
-        }
-
-        @Operation(summary = "Excluir usuário por ID")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "204", description = "Usuário excluído com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "ID não informado ou inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class))),
-                        @ApiResponse(responseCode = "500", description = "Erro desconhecido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroControle.class)))
-        })
-        @DeleteMapping("excluir/{id}")
-        public ResponseEntity<CollectionModel<Void>> excluir(
-                        @PathVariable @Positive(message = "ID deve ser um número positivo") Long id) {
-                servico.excluir(id);
-
-                CollectionModel<Void> links = CollectionModel.empty();
-                links.add(linkTo(methodOn(UsuarioControle.class).listarTodos()).withRel("usuários"));
-                links.add(linkTo(methodOn(UsuarioControle.class).cadastrar(null)).withRel("cadastrar")
-                                .withType("POST"));
-
-                return ResponseEntity.ok(links);
-        }
+	
+	@Autowired
+	private UsuarioRepositorio repositorio;
+	@Autowired
+	private EmpresaRepositorio EmpresaRepositorio;
+	@Autowired
+	private VendaRepositorio VendaRepositorio;
+	@Autowired
+	private VeiculoRepositorio VeiculoRepositorio;
+	@Autowired
+	private AdicionadorLinkUsuario adicionarLink;
+	
+	@GetMapping("/buscar")
+	public ResponseEntity<List<Usuario>> buscarUsuarios(){
+		List<Usuario> usuarios = repositorio.findAll();
+		adicionarLink.adicionarLink(usuarios);
+		if(!usuarios.isEmpty()) {
+			for(Usuario usuario: usuarios) {
+				adicionarLink.adicionarLinkUpdate(usuario);
+				adicionarLink.adicionarLinkDelete(usuario);
+			}
+		}
+		return new ResponseEntity<List<Usuario>>(usuarios,HttpStatus.FOUND);
+	}
+	
+	@GetMapping("/buscar/{id}")
+	public ResponseEntity<Usuario> buscarUsuario(@PathVariable Long id){
+		Usuario usuario = repositorio.findById(id).orElse(null);
+		HttpStatus status = null;
+		if(usuario == null) {
+			status = HttpStatus.NOT_FOUND;
+		}else {
+			adicionarLink.adicionarLink(usuario);
+			adicionarLink.adicionarLinkUpdate(usuario);
+			adicionarLink.adicionarLinkDelete(usuario);
+			status = HttpStatus.FOUND;
+		}
+		return new ResponseEntity<Usuario>(usuario,status);
+	}
+	
+	@PostMapping("/cadastrar-cliente")
+	public ResponseEntity<Usuario> cadastrarUsuarioCliente(@RequestBody Usuario dados){
+		dados.getPerfis().add(PerfilUsuario.CLIENTE);
+		Usuario usuario = repositorio.save(dados);
+		adicionarLink.adicionarLink(usuario);
+		adicionarLink.adicionarLinkUpdate(usuario);
+		adicionarLink.adicionarLinkDelete(usuario);
+		return new ResponseEntity<Usuario>(usuario,HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/cadastrar-funcionario/{idEmpresa}")
+	public ResponseEntity<?> cadastrarUsuarioFuncionario(@RequestBody Usuario dados, @PathVariable Long idEmpresa){
+		dados.getPerfis().add(PerfilUsuario.FUNCIONARIO);
+		Empresa empresa = EmpresaRepositorio.findById(idEmpresa).orElse(null);
+		if(empresa == null) {
+			return new ResponseEntity<String>("Empresa não encontrada...", HttpStatus.NOT_FOUND);
+		}else {
+			empresa.getUsuarios().add(dados);
+			EmpresaRepositorio.save(empresa);
+			for(Usuario usuario: empresa.getUsuarios()) {
+				adicionarLink.adicionarLink(usuario);
+				adicionarLink.adicionarLinkUpdate(usuario);
+				adicionarLink.adicionarLinkDelete(usuario);
+			}
+			return new ResponseEntity<Empresa>(empresa, HttpStatus.CREATED);
+		}
+	}
+	
+	@PostMapping("/cadastrar-fornecedor")
+	public ResponseEntity<Usuario> cadastrarUsuarioFornecedor(@RequestBody Usuario dados){
+		dados.getPerfis().add(PerfilUsuario.FORNECEDOR);
+		Usuario usuario = repositorio.save(dados);
+		adicionarLink.adicionarLink(usuario);
+		adicionarLink.adicionarLinkUpdate(usuario);
+		adicionarLink.adicionarLinkDelete(usuario);
+		return new ResponseEntity<Usuario>(usuario,HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/atualizar/{idUsuario}")
+	public ResponseEntity<?> atualizarUsuario(@PathVariable Long idUsuario, @RequestBody Usuario dados){
+		Usuario usuario = repositorio.findById(idUsuario).orElse(null);
+		if(usuario == null) {
+			return new ResponseEntity<String>("Usuario não encontrado...",HttpStatus.NOT_FOUND);
+		}else {
+			if(dados != null) {
+				if(dados.getNome() != null) {
+					usuario.setNome(dados.getNome());
+				}
+				if(dados.getNomeSocial() != null) {
+					usuario.setNomeSocial(dados.getNomeSocial());
+				}
+				repositorio.save(usuario);
+			}
+			return new ResponseEntity<>(usuario, HttpStatus.ACCEPTED);
+		}
+	}
+	
+	@DeleteMapping("/excluir/{idUsuario}")
+	public ResponseEntity<?> excluirUsuario(@PathVariable Long idUsuario){
+		Usuario verificacao = repositorio.findById(idUsuario).orElse(null);
+		if(verificacao == null) {
+			return new ResponseEntity<String>("Usuario não encontrado...",HttpStatus.NOT_FOUND);
+		}else {
+			
+			//venda
+			for(Venda venda: VendaRepositorio.findAll()) {
+				if(venda.getCliente() != null) {		
+					if(venda.getCliente().getId() == idUsuario) {
+						venda.setCliente(null);
+						VendaRepositorio.save(venda);
+					}
+				}
+				if(venda.getFuncionario() != null) {	
+					if(venda.getFuncionario().getId() == idUsuario) {
+						venda.setFuncionario(null);
+						VendaRepositorio.save(venda);
+					}
+				}
+			}
+			
+			//veiculo
+			for(Veiculo veiculo: VeiculoRepositorio.findAll()) {
+				if(veiculo.getProprietario() != null) {	
+					if(veiculo.getProprietario().getId() == idUsuario) {
+						veiculo.setProprietario(null);
+						VeiculoRepositorio.save(veiculo);
+					}
+				}
+			}
+			
+			for(Empresa empresa: EmpresaRepositorio.findAll()) {
+				if(!empresa.getUsuarios().isEmpty()) {
+					for(Usuario usuario: empresa.getUsuarios()) {
+						if(usuario.getId() == idUsuario) {
+							empresa.getUsuarios().remove(usuario);
+							EmpresaRepositorio.save(empresa);
+						}
+						break;
+					}
+				}
+			}
+			
+			repositorio.deleteById(idUsuario);
+			return new ResponseEntity<>(repositorio.findAll(),HttpStatus.ACCEPTED);
+		}
+	}
 }
