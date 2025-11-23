@@ -1,8 +1,6 @@
 package com.autobots.automanager.controles;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,210 +11,82 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Empresa;
-import com.autobots.automanager.entidades.Mercadoria;
-import com.autobots.automanager.entidades.Servico;
-import com.autobots.automanager.entidades.Usuario;
-import com.autobots.automanager.entidades.Veiculo;
 import com.autobots.automanager.entidades.Venda;
 import com.autobots.automanager.modelos.AdicionadorLinkVenda;
-import com.autobots.automanager.modelos.VendaMolde;
-import com.autobots.automanager.repositorios.EmpresaRepositorio;
-import com.autobots.automanager.repositorios.MercadoriaRepositorio;
-import com.autobots.automanager.repositorios.ServicoRepositorio;
-import com.autobots.automanager.repositorios.UsuarioRepositorio;
-import com.autobots.automanager.repositorios.VeiculoRepositorio;
+import com.autobots.automanager.modelos.VendaAtualizador;
+import com.autobots.automanager.modelos.VendaSelecionador;
 import com.autobots.automanager.repositorios.VendaRepositorio;
 
-@RestController
-@RequestMapping("/venda")
 public class VendaControle {
+	@Autowired
+	private VendaRepositorio repositorio;
+	@Autowired
+	private VendaSelecionador selecionador;
+	@Autowired
+	private AdicionadorLinkVenda adicionadorLink;
 
-	@Autowired
-	public VendaRepositorio repositorio;
-	@Autowired
-	public EmpresaRepositorio EmpresaRepositorio;
-	@Autowired
-	public UsuarioRepositorio UsuarioRepositorio;
-	@Autowired
-	public MercadoriaRepositorio MercadoriaRepositorio;
-	@Autowired
-	public ServicoRepositorio ServicoRepositorio;
-	@Autowired
-	public VeiculoRepositorio VeiculoRepositorio;
-	@Autowired
-	public AdicionadorLinkVenda adicionarLink;
-
-	@GetMapping("/buscar")
-	public ResponseEntity<List<Venda>> buscarVendas() {
+	@GetMapping("/venda/{id}")
+	public ResponseEntity<Venda> obterVenda(@PathVariable long id) {
 		List<Venda> vendas = repositorio.findAll();
-		adicionarLink.adicionarLink(vendas);
-		if(!vendas.isEmpty()) {
-			for(Venda venda: vendas) {
-				adicionarLink.adicionarLinkUpdate(venda);
-				adicionarLink.adicionarLinkDelete(venda);
-			}
-		}
-		return new ResponseEntity<List<Venda>>(vendas, HttpStatus.FOUND);
-	}
-
-	@GetMapping("/buscar/{id}")
-	public ResponseEntity<Venda> buscarVenda(@PathVariable Long id) {
-		Venda venda = repositorio.findById(id).orElse(null);
-		HttpStatus status = null;
+		Venda venda = selecionador.selecionar(vendas, id);
 		if (venda == null) {
-			status = HttpStatus.NOT_FOUND;
+			ResponseEntity<Venda> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
 		} else {
-			adicionarLink.adicionarLink(venda);
-			adicionarLink.adicionarLinkUpdate(venda);
-			adicionarLink.adicionarLinkDelete(venda);
-			status = HttpStatus.FOUND;
+			adicionadorLink.adicionarLink(venda);
+			ResponseEntity<Venda> resposta = new ResponseEntity<Venda>(venda, HttpStatus.FOUND);
+			return resposta;
 		}
-		return new ResponseEntity<Venda>(venda, status);
 	}
 
-	@PostMapping("/cadastrar")
-	public ResponseEntity<Empresa> cadastrarVenda(@RequestBody VendaMolde dados){
-		Empresa empresa = EmpresaRepositorio.findById(dados.getIdEmpresa()).orElse(null);
-		Venda venda = new Venda();
-		if(empresa == null) {
-			return new ResponseEntity<Empresa>(empresa,HttpStatus.NOT_FOUND);
-		}else {
-			venda.setCliente(UsuarioRepositorio.findById(dados.getIdCliente()).orElse(null));
-			venda.setFuncionario(UsuarioRepositorio.findById(dados.getIdFuncionario()).orElse(null));
-			venda.setVeiculo(VeiculoRepositorio.findById(dados.getIdVeiculo()).orElse(null));
-			venda.setCadastro(new Date());
-			venda.setIdentificacao(dados.getIdentificacao());
+	@GetMapping("/vendas")
+	public ResponseEntity<List<Venda>> obterVendas() {
+		List<Venda> vendas = repositorio.findAll();
+		if (vendas.isEmpty()) {
+			ResponseEntity<List<Venda>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
+		} else {
+			adicionadorLink.adicionarLink(vendas);
+			ResponseEntity<List<Venda>> resposta = new ResponseEntity<>(vendas, HttpStatus.FOUND);
+			return resposta;
+		}
+	}
+
+	@PostMapping("/venda/cadastro")
+	public ResponseEntity<?> cadastrarVenda(@RequestBody Venda venda) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		if (venda.getId() == null) {
 			repositorio.save(venda);
-			
-			Set<Long> idsMercadorias = dados.getIdMercadorias();
-			Set<Long> idsServicos = dados.getIdServicos();
-			
-			if(dados.getIdMercadorias() != null) {
-				if(!dados.getIdMercadorias().isEmpty()) {	
-					for (Long id : idsMercadorias) {
-						Mercadoria respostaBuscar = MercadoriaRepositorio.getById(id);
-						Mercadoria mercadoria = new Mercadoria();
-						mercadoria.setValidade(respostaBuscar.getValidade());
-						mercadoria.setFabricao(respostaBuscar.getFabricao());
-						mercadoria.setCadastro(respostaBuscar.getCadastro());
-						mercadoria.setNome(respostaBuscar.getNome());
-						mercadoria.setQuantidade(respostaBuscar.getQuantidade());
-						mercadoria.setValor(respostaBuscar.getValor());
-						mercadoria.setDescricao(respostaBuscar.getDescricao());
-						mercadoria.setOriginal(false);
-						venda.getMercadorias().add(mercadoria);
-					}
-				}
-			}
+			status = HttpStatus.CREATED;
+		}
+		return new ResponseEntity<>(status);
 
-			if(dados.getIdServicos() != null) {	
-				if(!dados.getIdServicos().isEmpty()) {				
-					for (Long id : idsServicos) {
-						Servico respostaBusca = ServicoRepositorio.getById(id);
-						Servico servico = new Servico();
-						servico.setNome(respostaBusca.getNome());
-						servico.setDescricao(respostaBusca.getDescricao());
-						servico.setValor(respostaBusca.getValor());
-						servico.setOriginal(false);
-						venda.getServicos().add(servico);
-					}
-				}
-			}
-			
+	}
+
+	@PutMapping("/venda/atualizar")
+	public ResponseEntity<?> atualizarVenda(@RequestBody Venda atualizacao) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		Venda venda = repositorio.getById(atualizacao.getId());
+		if (venda != null) {
+			VendaAtualizador atualizador = new VendaAtualizador();
+			atualizador.atualizar(venda, atualizacao);
 			repositorio.save(venda);
-			
-			empresa.getVendas().add(venda);
-			Usuario funcionario = venda.getFuncionario();
-			
-			funcionario.getVendas().add(venda);
-			EmpresaRepositorio.save(empresa);
-			
-			for(Venda vendaRegistrada: empresa.getVendas()) {
-				adicionarLink.adicionarLink(vendaRegistrada);
-				adicionarLink.adicionarLinkUpdate(vendaRegistrada);
-				adicionarLink.adicionarLinkDelete(vendaRegistrada);
-			}
-			
-			return new ResponseEntity<Empresa>(empresa,HttpStatus.CREATED);
-		}
-	}
-
-	@PutMapping("/atualizar/{idVenda}")
-	public ResponseEntity<?> atualizarVenda(@PathVariable Long idVenda, @RequestBody Venda dados) {
-		Venda venda = repositorio.findById(idVenda).orElse(null);
-		if (venda == null) {
-			return new ResponseEntity<>("Venda não encontrada...", HttpStatus.NOT_FOUND);
+			status = HttpStatus.OK;
 		} else {
-			if (dados != null) {
-				if (dados.getIdentificacao() != null) {
-					venda.setIdentificacao(dados.getIdentificacao());
-				}
-				repositorio.save(venda);
-			}
-			return new ResponseEntity<>(venda, HttpStatus.ACCEPTED);
+			status = HttpStatus.BAD_REQUEST;
 		}
+		return new ResponseEntity<>(status);
 	}
 
-	@DeleteMapping("/excluir/{idVenda}")
-	public ResponseEntity<?> excluirVenda(@PathVariable Long idVenda) {
-		List<Empresa> empresas = EmpresaRepositorio.findAll();
-		List<Usuario> usuarios = UsuarioRepositorio.findAll();
-		List<Veiculo> veiculos = VeiculoRepositorio.findAll();
-		Venda verificador = repositorio.findById(idVenda).orElse(null);
-
-		if (verificador == null) {
-			return new ResponseEntity<>("Venda não encontrada...", HttpStatus.NOT_FOUND);
-		} else {
-
-			// empresa
-			for (Empresa empresa : EmpresaRepositorio.findAll()) {
-				if (!empresa.getVendas().isEmpty()) {
-					for (Venda vendaEmpresa : empresa.getVendas()) {
-						if (vendaEmpresa.getId() == idVenda) {
-							for (Empresa empresaRegistrada : empresas) {
-								empresaRegistrada.getVendas().remove(vendaEmpresa);
-							}
-						}
-					}
-				}
-			}
-
-			// usuarios
-			for (Usuario usuario : UsuarioRepositorio.findAll()) {
-				if (!usuario.getVendas().isEmpty()) {
-					for (Venda vendaUsuario : usuario.getVendas()) {
-						if (vendaUsuario.getId() == idVenda) {
-							for (Usuario usuarioRegistrado : usuarios) {
-								usuarioRegistrado.getVendas().remove(vendaUsuario);
-							}
-						}
-					}
-				}
-			}
-
-			// veiculos
-			for (Veiculo veiculo : VeiculoRepositorio.findAll()) {
-				if (!veiculo.getVendas().isEmpty()) {
-					for (Venda vendaVeiculo : veiculo.getVendas()) {
-						if (vendaVeiculo.getId() == idVenda) {
-							for (Veiculo veiculoRegistrado : veiculos) {
-								veiculoRegistrado.getVendas().remove(vendaVeiculo);
-							}
-						}
-					}
-				}
-			}
-
-			empresas = EmpresaRepositorio.findAll();
-			usuarios = UsuarioRepositorio.findAll();
-			veiculos = VeiculoRepositorio.findAll();
-			repositorio.deleteById(idVenda);
-			return new ResponseEntity<>("Venda excluida com sucesso...", HttpStatus.ACCEPTED);
+	@DeleteMapping("/venda/excluir")
+	public ResponseEntity<?> excluirVenda(@RequestBody Venda exclusao) {
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		Venda venda = repositorio.getById(exclusao.getId());
+		if (venda != null) {
+			repositorio.delete(venda);
+			status = HttpStatus.OK;
 		}
+		return new ResponseEntity<>(status);
 	}
-
 }

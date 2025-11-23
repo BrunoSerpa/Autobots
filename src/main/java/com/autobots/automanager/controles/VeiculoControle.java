@@ -11,132 +11,82 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Veiculo;
-import com.autobots.automanager.entidades.Venda;
 import com.autobots.automanager.modelos.AdicionadorLinkVeiculo;
-import com.autobots.automanager.repositorios.UsuarioRepositorio;
+import com.autobots.automanager.modelos.VeiculoAtualizador;
+import com.autobots.automanager.modelos.VeiculoSelecionador;
 import com.autobots.automanager.repositorios.VeiculoRepositorio;
-import com.autobots.automanager.repositorios.VendaRepositorio;
 
-@RestController
-@RequestMapping("/veiculo")
 public class VeiculoControle {
-	
 	@Autowired
 	private VeiculoRepositorio repositorio;
 	@Autowired
-	private UsuarioRepositorio UsuarioRepositorio;
+	private VeiculoSelecionador selecionador;
 	@Autowired
-	private VendaRepositorio VendaRepositorio;
-	@Autowired
-	private AdicionadorLinkVeiculo adicionarLink;
-	
-	@GetMapping("/buscar")
-	public ResponseEntity<List<Veiculo>> buscarVeiculos(){
+	private AdicionadorLinkVeiculo adicionadorLink;
+
+	@GetMapping("/veiculo/{id}")
+	public ResponseEntity<Veiculo> obterVeiculo(@PathVariable long id) {
 		List<Veiculo> veiculos = repositorio.findAll();
-		adicionarLink.adicionarLink(veiculos);
-		if(!veiculos.isEmpty()) {
-			for(Veiculo veiculo: veiculos) {
-				adicionarLink.adicionarLinkUpdate(veiculo);
-				adicionarLink.adicionarLinkDelete(veiculo);
-			}
+		Veiculo veiculo = selecionador.selecionar(veiculos, id);
+		if (veiculo == null) {
+			ResponseEntity<Veiculo> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
+		} else {
+			adicionadorLink.adicionarLink(veiculo);
+			ResponseEntity<Veiculo> resposta = new ResponseEntity<Veiculo>(veiculo, HttpStatus.FOUND);
+			return resposta;
 		}
-		return new ResponseEntity<List<Veiculo>>(veiculos,HttpStatus.FOUND);
 	}
-	
-	@GetMapping("/buscar/{id}")
-	public ResponseEntity<Veiculo> buscarVeiculo(@PathVariable Long id){
-		Veiculo veiculo = repositorio.findById(id).orElse(null);
-		HttpStatus status = null;
-		if(veiculo == null) {
-			status = HttpStatus.NOT_FOUND;
-		}else {
-			adicionarLink.adicionarLink(veiculo);
-			adicionarLink.adicionarLinkUpdate(veiculo);
-			adicionarLink.adicionarLinkDelete(veiculo);
-			status = HttpStatus.FOUND;
+
+	@GetMapping("/veiculos")
+	public ResponseEntity<List<Veiculo>> obterVeiculos() {
+		List<Veiculo> veiculos = repositorio.findAll();
+		if (veiculos.isEmpty()) {
+			ResponseEntity<List<Veiculo>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
+		} else {
+			adicionadorLink.adicionarLink(veiculos);
+			ResponseEntity<List<Veiculo>> resposta = new ResponseEntity<>(veiculos, HttpStatus.FOUND);
+			return resposta;
 		}
-		return new ResponseEntity<Veiculo>(veiculo,status);
 	}
-	
-	@PostMapping("/cadastrar/{idUsuario}")
-	public ResponseEntity<Usuario> cadastrarVeiculoCliente(@RequestBody Veiculo dados, @PathVariable Long idUsuario){
-		Usuario usuario = UsuarioRepositorio.findById(idUsuario).orElse(null);
-		HttpStatus status = null;
-		if(usuario == null) {
-			status = HttpStatus.NOT_FOUND;
-		}else {
-			dados.setProprietario(usuario);
-			usuario.getVeiculos().add(dados);
-			UsuarioRepositorio.save(usuario);
-			for(Veiculo veiculo: usuario.getVeiculos()) {
-				adicionarLink.adicionarLink(veiculo);
-				adicionarLink.adicionarLinkUpdate(veiculo);
-				adicionarLink.adicionarLinkDelete(veiculo);
-			}
+
+	@PostMapping("/veiculo/cadastro")
+	public ResponseEntity<?> cadastrarVeiculo(@RequestBody Veiculo veiculo) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		if (veiculo.getId() == null) {
+			repositorio.save(veiculo);
 			status = HttpStatus.CREATED;
 		}
-		return new ResponseEntity<Usuario>(usuario,status);
+		return new ResponseEntity<>(status);
+
 	}
-	
-	@PutMapping("/atualizar/{idVeiculo}")
-	public ResponseEntity<?> atualizarVeiculo(@PathVariable Long idVeiculo, @RequestBody Veiculo dados){
-		Veiculo veiculo = repositorio.findById(idVeiculo).orElse(null);
-		if(veiculo == null) {
-			return new ResponseEntity<>("Veiculo não encontrado...",HttpStatus.NOT_FOUND);
-		}else {
-			if(dados != null) {
-				if(dados.getModelo() != null) {
-					veiculo.setModelo(dados.getModelo());
-				}
-				if(dados.getPlaca() != null) {
-					veiculo.setPlaca(dados.getPlaca());
-				}
-				repositorio.save(veiculo);
-			}
-			return new ResponseEntity<>(veiculo,HttpStatus.ACCEPTED);
+
+	@PutMapping("/veiculo/atualizar")
+	public ResponseEntity<?> atualizarVeiculo(@RequestBody Veiculo atualizacao) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		Veiculo veiculo = repositorio.getById(atualizacao.getId());
+		if (veiculo != null) {
+			VeiculoAtualizador atualizador = new VeiculoAtualizador();
+			atualizador.atualizar(veiculo, atualizacao);
+			repositorio.save(veiculo);
+			status = HttpStatus.OK;
+		} else {
+			status = HttpStatus.BAD_REQUEST;
 		}
+		return new ResponseEntity<>(status);
 	}
-	
-	@DeleteMapping("/excluir/{idVeiculo}")
-	public ResponseEntity<?> excluirVeiculo(@PathVariable Long idVeiculo){
-		List<Usuario> usuarios = UsuarioRepositorio.findAll();
-		Veiculo verificacao = repositorio.findById(idVeiculo).orElse(null);
-		
-		if(verificacao == null) {
 
-			return new ResponseEntity<>("Veiculo não encontrado...",HttpStatus.NOT_FOUND);
-
-		}else {
-			//usuario
-			for(Usuario usuario: UsuarioRepositorio.findAll()) {
-				if(!usuario.getVeiculos().isEmpty()) {
-					for(Veiculo veiculoUsuario: usuario.getVeiculos()) {
-						if(veiculoUsuario.getId() == idVeiculo) {
-							for(Usuario usuarioRegistrado: usuarios) {
-								usuarioRegistrado.getVeiculos().remove(veiculoUsuario);
-							}
-						}
-					}
-				}
-			}
-			
-			//venda
-			for(Venda venda: VendaRepositorio.findAll()) {
-				if(venda.getVeiculo() != null) {
-					if(venda.getVeiculo().getId() == idVeiculo) {
-						venda.setVeiculo(null);
-					}
-				}
-			}
-
-			usuarios = UsuarioRepositorio.findAll();
-			repositorio.deleteById(idVeiculo);
-			return new ResponseEntity<>("Veiculo excluido com sucesso...",HttpStatus.ACCEPTED);
+	@DeleteMapping("/veiculo/excluir")
+	public ResponseEntity<?> excluirVeiculo(@RequestBody Veiculo exclusao) {
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		Veiculo veiculo = repositorio.getById(exclusao.getId());
+		if (veiculo != null) {
+			repositorio.delete(veiculo);
+			status = HttpStatus.OK;
 		}
+		return new ResponseEntity<>(status);
 	}
 }

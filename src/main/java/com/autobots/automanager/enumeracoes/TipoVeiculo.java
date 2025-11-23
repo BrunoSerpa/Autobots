@@ -1,5 +1,5 @@
 package com.autobots.automanager.enumeracoes;
 
 public enum TipoVeiculo {
-	HATCH,SEDAN,SUV,PICKUP,SW
+	HATCH,SEDA,SUV,PICKUP,SW
 }

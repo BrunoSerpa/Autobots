@@ -10,17 +10,17 @@ import com.autobots.automanager.controles.EnderecoControle;
 import com.autobots.automanager.entidades.Endereco;
 
 @Component
-public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco>{
+public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco> {
 
 	@Override
 	public void adicionarLink(List<Endereco> lista) {
-		for(Endereco endereco:lista) {
+		for (Endereco endereco : lista) {
 			long id = endereco.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(EnderecoControle.class)
-							.buscarEndereco(id))
-					.withRel("Visualizar endereco de id " + id);
+							.obterEndereco(id))
+					.withSelfRel();
 			endereco.add(linkProprio);
 		}
 	}
@@ -30,29 +30,8 @@ public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco>{
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(EnderecoControle.class)
-						.buscarEnderecos())
-				.withRel("Lista de enderecos");
+						.obterEnderecos())
+				.withRel("enderecos");
 		objeto.add(linkProprio);
 	}
-
-	@Override
-	public void adicionarLinkUpdate(Endereco objeto) {
-		Link linkProprio = WebMvcLinkBuilder
-				.linkTo(WebMvcLinkBuilder
-						.methodOn(EnderecoControle.class)
-						.atualizarEndereco(objeto.getId(), objeto))
-				.withRel("Atualizar endereco de id " + objeto.getId());
-		objeto.add(linkProprio);
-	}
-
-	@Override
-	public void adicionarLinkDelete(Endereco objeto) {
-		Link linkProprio = WebMvcLinkBuilder
-				.linkTo(WebMvcLinkBuilder
-						.methodOn(EnderecoControle.class)
-						.excluirEndereco(objeto.getId()))
-				.withRel("Excluir endereco de id " + objeto.getId());
-		objeto.add(linkProprio);
-	}
-
 }

@@ -1,6 +1,5 @@
 package com.autobots.automanager.controles;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,141 +11,82 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Empresa;
-import com.autobots.automanager.entidades.Servico;
-import com.autobots.automanager.entidades.Venda;
-import com.autobots.automanager.modelos.AdicionadorLinkServico;
-import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import com.autobots.automanager.repositorios.ServicoRepositorio;
-import com.autobots.automanager.repositorios.VendaRepositorio;
+import com.autobots.automanager.entidades.Servico;
+import com.autobots.automanager.modelos.AdicionadorLinkServico;
+import com.autobots.automanager.modelos.ServicoAtualizador;
+import com.autobots.automanager.modelos.ServicoSelecionador;
 
-@RestController
-@RequestMapping("/servico")
 public class ServicoControle {
-
 	@Autowired
 	private ServicoRepositorio repositorio;
 	@Autowired
-	private EmpresaRepositorio EmpresaRepositorio;
+	private ServicoSelecionador selecionador;
 	@Autowired
-	private VendaRepositorio VendaRepositorio;
-	@Autowired
-	private AdicionadorLinkServico adicionarLink;
-	
-	@GetMapping("/buscar")
-	public ResponseEntity<List<Servico>> buscarServicos(){
+	private AdicionadorLinkServico adicionadorLink;
+
+	@GetMapping("/servico/{id}")
+	public ResponseEntity<Servico> obterServico(@PathVariable long id) {
 		List<Servico> servicos = repositorio.findAll();
-		List<Servico> novaListaServicos = new ArrayList<Servico>();
-		for(Servico servicoRegistrado: servicos) {
-			if(servicoRegistrado.getOriginal() != null) {	
-				if(servicoRegistrado.getOriginal() == true) {
-					adicionarLink.adicionarLinkUpdate(servicoRegistrado);
-					adicionarLink.adicionarLinkDelete(servicoRegistrado);
-					novaListaServicos.add(servicoRegistrado);
-				}
-			}
+		Servico servico = selecionador.selecionar(servicos, id);
+		if (servico == null) {
+			ResponseEntity<Servico> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
+		} else {
+			adicionadorLink.adicionarLink(servico);
+			ResponseEntity<Servico> resposta = new ResponseEntity<Servico>(servico, HttpStatus.FOUND);
+			return resposta;
 		}
-		adicionarLink.adicionarLink(novaListaServicos);
-		return new ResponseEntity<List<Servico>>(novaListaServicos, HttpStatus.FOUND);
 	}
-	
-	@GetMapping("/buscar/{id}")
-	public ResponseEntity<Servico> buscarServico(@PathVariable Long id){
-		Servico servico = repositorio.findById(id).orElse(null);
-		HttpStatus status = null;
-		if(servico == null) {
-			status = HttpStatus.NOT_FOUND;
-		}else {
-			adicionarLink.adicionarLink(servico);
-			adicionarLink.adicionarLinkUpdate(servico);
-			adicionarLink.adicionarLinkDelete(servico);
-			status = HttpStatus.FOUND;
+
+	@GetMapping("/servicos")
+	public ResponseEntity<List<Servico>> obterServicos() {
+		List<Servico> servicos = repositorio.findAll();
+		if (servicos.isEmpty()) {
+			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return resposta;
+		} else {
+			adicionadorLink.adicionarLink(servicos);
+			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(servicos, HttpStatus.FOUND);
+			return resposta;
 		}
-		return new ResponseEntity<Servico>(servico, status);
 	}
-	
-	@PostMapping("/cadastrar/{idEmpresa}")
-	public ResponseEntity<Empresa> cadastrarServicoEmpresa(@RequestBody Servico dados, @PathVariable Long idEmpresa){
-		dados.setOriginal(true);
-		Empresa empresa = EmpresaRepositorio.findById(idEmpresa).orElse(null);
-		HttpStatus status = null;
-		if(empresa == null) {
-			status = HttpStatus.NOT_FOUND;
-		}else {
-			empresa.getServicos().add(dados);
-			EmpresaRepositorio.save(empresa);
-			for(Servico servico: empresa.getServicos()) {
-				adicionarLink.adicionarLink(servico);
-				adicionarLink.adicionarLinkUpdate(servico);
-				adicionarLink.adicionarLinkDelete(servico);
-			}
+
+	@PostMapping("/servico/cadastro")
+	public ResponseEntity<?> cadastrarServico(@RequestBody Servico servico) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		if (servico.getId() == null) {
+			repositorio.save(servico);
 			status = HttpStatus.CREATED;
 		}
-		return new ResponseEntity<Empresa>(empresa, status);
-	}
-	
-	@PutMapping("/atualizar/{idServico}")
-	public ResponseEntity<?> atualizarServico(@PathVariable Long idServico, @RequestBody Servico dados){
-		Servico servico = repositorio.findById(idServico).orElse(null);
-		if(servico == null) {
-			return new ResponseEntity<>("Servico não encontrado", HttpStatus.NOT_FOUND);
-		}else {
-			if(dados != null) {
-				if(dados.getNome() != null) {
-					servico.setNome(dados.getNome());
-				}
-				if(dados.getDescricao() != null) {
-					servico.setDescricao(dados.getDescricao());
-				}
-				
-				servico.setValor(dados.getValor());
-				repositorio.save(servico);
-			}
-			return new ResponseEntity<>(servico,HttpStatus.ACCEPTED);
-		}
-	}
-	
-	@DeleteMapping("/excluir/{idServico}")
-	public ResponseEntity<?> excluirServico(@PathVariable Long idServico){
-		List<Empresa> empresas = EmpresaRepositorio.findAll();
-		List<Venda> vendas = VendaRepositorio.findAll();
-		Servico verificador = repositorio.findById(idServico).orElse(null);
-		
-		if(verificador == null) {
-			return new ResponseEntity<>("Servico não encontrado", HttpStatus.NOT_FOUND);
-		}else {
-			//empresa
-			for(Empresa empresa: EmpresaRepositorio.findAll()) {
-				if(empresa.getServicos().size() > 0) {
-					for(Servico servicoEmpresa: empresa.getServicos()) {
-						if(servicoEmpresa.getId() == idServico) {
-							for(Empresa empresaRegistrado:empresas) {
-								empresaRegistrado.getServicos().remove(servicoEmpresa);
-							}
-						}
-					}
-				}
-			}
+		return new ResponseEntity<>(status);
 
-			//venda
-			for(Venda venda: VendaRepositorio.findAll()) {
-				if(venda.getServicos().size() > 0) {
-					for(Servico servicoVenda: venda.getServicos()) {
-						if(servicoVenda.getId() == idServico) {
-							for(Venda vendaRegistrada: vendas) {
-								vendaRegistrada.getServicos().remove(servicoVenda);
-							}
-						}
-					}
-				}
-			}
-			
-			repositorio.deleteById(idServico);
-			return new ResponseEntity<>("Serviço excluido com sucesso...",HttpStatus.ACCEPTED);
-		}
 	}
-	
+
+	@PutMapping("/servico/atualizar")
+	public ResponseEntity<?> atualizarServico(@RequestBody Servico atualizacao) {
+		HttpStatus status = HttpStatus.CONFLICT;
+		Servico servico = repositorio.getById(atualizacao.getId());
+		if (servico != null) {
+			ServicoAtualizador atualizador = new ServicoAtualizador();
+			atualizador.atualizar(servico, atualizacao);
+			repositorio.save(servico);
+			status = HttpStatus.OK;
+		} else {
+			status = HttpStatus.BAD_REQUEST;
+		}
+		return new ResponseEntity<>(status);
+	}
+
+	@DeleteMapping("/servico/excluir")
+	public ResponseEntity<?> excluirServico(@RequestBody Servico exclusao) {
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		Servico servico = repositorio.getById(exclusao.getId());
+		if (servico != null) {
+			repositorio.delete(servico);
+			status = HttpStatus.OK;
+		}
+		return new ResponseEntity<>(status);
+	}
 }
