@@ -1,10 +1,6 @@
 package com.autobots.automanager.modelos;
 
 import com.autobots.automanager.entidades.Email;
-import com.autobots.automanager.entidades.Mercadoria;
-import com.autobots.automanager.entidades.Servico;
-import com.autobots.automanager.entidades.Usuario;
-import com.autobots.automanager.entidades.Venda;
 
 public class EmailAtualizador {
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();

@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.autobots.automanager.entidades.Veiculo;
 
+import org.springframework.stereotype.Component;
+@Component
 public class VeiculoSelecionador {
 	public Veiculo selecionar(List<Veiculo> veiculos, long id) {
 		Veiculo selecionado = null;

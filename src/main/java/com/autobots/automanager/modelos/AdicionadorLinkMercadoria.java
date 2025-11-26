@@ -8,6 +8,8 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import com.autobots.automanager.controles.MercadoriaControle;
 import com.autobots.automanager.entidades.Mercadoria;
 
+import org.springframework.stereotype.Component;
+@Component
 public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria> {
 	@Override
 	public void adicionarLink(List<Mercadoria> lista) {

@@ -8,6 +8,8 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import com.autobots.automanager.controles.ServicoControle;
 import com.autobots.automanager.entidades.Servico;
 
+import org.springframework.stereotype.Component;
+@Component
 public class AdicionadorLinkServico implements AdicionadorLink<Servico> {
 	@Override
 	public void adicionarLink(List<Servico> lista) {

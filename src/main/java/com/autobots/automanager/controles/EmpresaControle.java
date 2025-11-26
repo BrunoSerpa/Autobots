@@ -23,8 +23,10 @@ import com.autobots.automanager.repositorios.EmpresaRepositorio;
 public class EmpresaControle {
     @Autowired
     private EmpresaRepositorio repositorio;
+
     @Autowired
     private EmpresaSelecionador selecionador;
+
     @Autowired
     private AdicionadorLinkEmpresa adicionadorLink;
 

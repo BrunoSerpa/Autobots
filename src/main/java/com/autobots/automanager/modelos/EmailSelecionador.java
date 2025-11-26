@@ -5,6 +5,8 @@ import java.util.List;
 import com.autobots.automanager.entidades.Email;
 
 
+import org.springframework.stereotype.Component;
+@Component
 public class EmailSelecionador {
 	public Email selecionar(List<Email> emails, long id) {
 		Email selecionado = null;

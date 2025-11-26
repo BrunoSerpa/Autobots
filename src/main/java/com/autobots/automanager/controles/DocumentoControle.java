@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.autobots.automanager.entidades.Documento;
-import com.autobots.automanager.modelos.AdicionadorLink;
 import com.autobots.automanager.modelos.AdicionadorLinkDocumento;
 import com.autobots.automanager.modelos.DocumentoAtualizador;
 import com.autobots.automanager.modelos.DocumentoSelecionador;
@@ -38,12 +37,10 @@ public class DocumentoControle {
 		List<Documento> documentos = repositorio.findAll();
 		Documento documento = selecionador.selecionar(documentos, id);
 		if (documento == null) {
-			ResponseEntity<Documento> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adcionadorLink.adicionarLink(documento);
-			ResponseEntity<Documento> resposta = new ResponseEntity<Documento>(documento, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(documento, HttpStatus.FOUND);
 		}
 	}
 
@@ -51,12 +48,10 @@ public class DocumentoControle {
 	public ResponseEntity<List<Documento>> obterDocumentos() {
 		List<Documento> documentos = repositorio.findAll();
 		if (documentos.isEmpty()) {
-			ResponseEntity<List<Documento>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adcionadorLink.adicionarLink(documentos);
-			ResponseEntity<List<Documento>> resposta = new ResponseEntity<List<Documento>>(documentos, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(documentos, HttpStatus.FOUND);
 		}
 	}
 	
