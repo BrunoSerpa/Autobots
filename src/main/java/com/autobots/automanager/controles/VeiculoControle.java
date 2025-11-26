@@ -40,12 +40,10 @@ public class VeiculoControle {
 		List<Veiculo> veiculos = repositorio.findAll();
 		Veiculo veiculo = selecionador.selecionar(veiculos, id);
 		if (veiculo == null) {
-			ResponseEntity<Veiculo> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(veiculo);
-			ResponseEntity<Veiculo> resposta = new ResponseEntity<Veiculo>(veiculo, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(veiculo, HttpStatus.FOUND);
 		}
 	}
 
@@ -53,12 +51,10 @@ public class VeiculoControle {
 	public ResponseEntity<List<Veiculo>> obterVeiculos() {
 		List<Veiculo> veiculos = repositorio.findAll();
 		if (veiculos.isEmpty()) {
-			ResponseEntity<List<Veiculo>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(veiculos);
-			ResponseEntity<List<Veiculo>> resposta = new ResponseEntity<>(veiculos, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(veiculos, HttpStatus.FOUND);
 		}
 	}
 

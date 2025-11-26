@@ -39,12 +39,10 @@ public class ServicoControle {
 		List<Servico> servicos = repositorio.findAll();
 		Servico servico = selecionador.selecionar(servicos, id);
 		if (servico == null) {
-			ResponseEntity<Servico> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(servico);
-			ResponseEntity<Servico> resposta = new ResponseEntity<Servico>(servico, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(servico, HttpStatus.FOUND);
 		}
 	}
 
@@ -52,12 +50,10 @@ public class ServicoControle {
 	public ResponseEntity<List<Servico>> obterServicos() {
 		List<Servico> servicos = repositorio.findAll();
 		if (servicos.isEmpty()) {
-			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(servicos);
-			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(servicos, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(servicos, HttpStatus.FOUND);
 		}
 	}
 

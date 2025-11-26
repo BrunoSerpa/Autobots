@@ -41,12 +41,10 @@ public class UsuarioControle {
 		List<Usuario> usuarios = repositorio.findAll();
 		Usuario usuario = selecionador.selecionar(usuarios, id);
 		if (usuario == null) {
-			ResponseEntity<Usuario> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(usuario);
-			ResponseEntity<Usuario> resposta = new ResponseEntity<Usuario>(usuario, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(usuario, HttpStatus.FOUND);
 		}
 	}
 
@@ -54,12 +52,10 @@ public class UsuarioControle {
 	public ResponseEntity<List<Usuario>> obterUsuarios() {
 		List<Usuario> usuarios = repositorio.findAll();
 		if (usuarios.isEmpty()) {
-			ResponseEntity<List<Usuario>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(usuarios);
-			ResponseEntity<List<Usuario>> resposta = new ResponseEntity<>(usuarios, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(usuarios, HttpStatus.FOUND);
 		}
 	}
 

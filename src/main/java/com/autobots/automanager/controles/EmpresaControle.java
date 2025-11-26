@@ -39,12 +39,10 @@ public class EmpresaControle {
         List<Empresa> empresas = repositorio.findAll();
         Empresa empresa = selecionador.selecionar(empresas, id);
         if (empresa == null) {
-            ResponseEntity<Empresa> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            return resposta;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             adicionadorLink.adicionarLink(empresa);
-            ResponseEntity<Empresa> resposta = new ResponseEntity<Empresa>(empresa, HttpStatus.FOUND);
-            return resposta;
+            return new ResponseEntity<>(empresa, HttpStatus.FOUND);
         }
     }
 
@@ -52,12 +50,10 @@ public class EmpresaControle {
     public ResponseEntity<List<Empresa>> obterEmpresas() {
         List<Empresa> empresas = repositorio.findAll();
         if (empresas.isEmpty()) {
-            ResponseEntity<List<Empresa>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            return resposta;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             adicionadorLink.adicionarLink(empresas);
-            ResponseEntity<List<Empresa>> resposta = new ResponseEntity<>(empresas, HttpStatus.FOUND);
-            return resposta;
+            return new ResponseEntity<>(empresas, HttpStatus.FOUND);
         }
     }
 

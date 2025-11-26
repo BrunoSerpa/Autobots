@@ -39,12 +39,10 @@ public class EmailControle {
 		List<Email> emails = repositorio.findAll();
 		Email email = selecionador.selecionar(emails, id);
 		if (email == null) {
-			ResponseEntity<Email> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(email);
-			ResponseEntity<Email> resposta = new ResponseEntity<Email>(email, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(email, HttpStatus.FOUND);
 		}
 	}
 
@@ -52,12 +50,10 @@ public class EmailControle {
 	public ResponseEntity<List<Email>> obterEmails() {
 		List<Email> emails = repositorio.findAll();
 		if (emails.isEmpty()) {
-			ResponseEntity<List<Email>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
 			adicionador.adicionarLink(emails);
-			ResponseEntity<List<Email>> resposta = new ResponseEntity<>(emails, HttpStatus.FOUND);
-			return resposta;
+			return new ResponseEntity<>(emails, HttpStatus.FOUND);
 		}
 	}
 

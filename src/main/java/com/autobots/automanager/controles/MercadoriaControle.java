@@ -39,12 +39,10 @@ public class MercadoriaControle {
         List<Mercadoria> mercadorias = repositorio.findAll();
         Mercadoria mercadoria = selecionador.selecionar(mercadorias, id);
         if (mercadoria == null) {
-            ResponseEntity<Mercadoria> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            return resposta;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             adicionador.adicionarLink(mercadoria);
-            ResponseEntity<Mercadoria> resposta = new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.FOUND);
-            return resposta;
+            return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.FOUND);
         }
     }
 
@@ -52,12 +50,10 @@ public class MercadoriaControle {
     public ResponseEntity<List<Mercadoria>> obterMercadorias() {
         List<Mercadoria> mercadorias = repositorio.findAll();
         if (mercadorias.isEmpty()) {
-            ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            return resposta;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             adicionador.adicionarLink(mercadorias);
-            ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(mercadorias, HttpStatus.FOUND);
-            return resposta;
+            return new ResponseEntity<>(mercadorias, HttpStatus.FOUND);
         }
     }
 
