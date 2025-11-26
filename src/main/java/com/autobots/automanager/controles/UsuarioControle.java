@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
 import com.autobots.automanager.modelos.AdicionadorLinkUsuario;
 import com.autobots.automanager.modelos.UsuarioAtualizador;
 import com.autobots.automanager.modelos.UsuarioSelecionador;
@@ -59,8 +60,19 @@ public class UsuarioControle {
 	public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (usuario.getId() == null) {
-			repositorio.save(usuario);
-			status = HttpStatus.CREATED;
+			boolean hasMercadorias = usuario.getMercadorias() != null && !usuario.getMercadorias().isEmpty();
+			boolean hasVeiculos = usuario.getVeiculos() != null && !usuario.getVeiculos().isEmpty();
+			if (hasMercadorias || hasVeiculos) {
+				if (usuario.getPerfis() != null && usuario.getPerfis().contains(PerfilUsuario.FORNECEDOR)) {
+					repositorio.save(usuario);
+					status = HttpStatus.CREATED;
+				} else {
+					status = HttpStatus.FORBIDDEN;
+				}
+			} else {
+				repositorio.save(usuario);
+				status = HttpStatus.CREATED;
+			}
 		}
 		return new ResponseEntity<>(status);
 
@@ -72,6 +84,15 @@ public class UsuarioControle {
 		Usuario usuario = repositorio.getById(atualizacao.getId());
 		if (usuario != null) {
 			UsuarioAtualizador atualizador = new UsuarioAtualizador();
+			boolean addingMercadorias = atualizacao.getMercadorias() != null && !atualizacao.getMercadorias().isEmpty();
+			boolean addingVeiculos = atualizacao.getVeiculos() != null && !atualizacao.getVeiculos().isEmpty();
+			if (addingMercadorias || addingVeiculos) {
+				boolean isFornecedor = (atualizacao.getPerfis() != null && atualizacao.getPerfis().contains(PerfilUsuario.FORNECEDOR))
+						|| (usuario.getPerfis() != null && usuario.getPerfis().contains(PerfilUsuario.FORNECEDOR));
+				if (!isFornecedor) {
+					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+				}
+			}
 			atualizador.atualizar(usuario, atualizacao);
 			repositorio.save(usuario);
 			status = HttpStatus.OK;

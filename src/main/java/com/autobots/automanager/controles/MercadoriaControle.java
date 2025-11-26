@@ -21,76 +21,76 @@ import com.autobots.automanager.repositorios.MercadoriaRepositorio;
 
 @RestController
 public class MercadoriaControle {
-	@Autowired
-	private MercadoriaRepositorio repositorio;
-	
-	@Autowired
-	private MercadoriaSelecionador selecionador;
-	
-	@Autowired
-	private AdicionadorLinkMercadoria adicionadorLink;
-	
-	@GetMapping("/mercadoria/{id}")
-	public ResponseEntity<Mercadoria> obterMercadoria(@PathVariable long id) {
-		List<Mercadoria> mercadorias = repositorio.findAll();
-		Mercadoria mercadoria = selecionador.selecionar(mercadorias, id);
-		if (mercadoria == null) {
-			ResponseEntity<Mercadoria> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
-		} else {
-			adicionadorLink.adicionarLink(mercadoria);
-			ResponseEntity<Mercadoria> resposta = new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.FOUND);
-			return resposta;
-		}
-	}
+    @Autowired
+    private MercadoriaRepositorio repositorio;
 
-	@GetMapping("/mercadorias")
-	public ResponseEntity<List<Mercadoria>> obterMercadorias() {
-		List<Mercadoria> mercadorias = repositorio.findAll();
-		if (mercadorias.isEmpty()) {
-			ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
-		} else {
-			adicionadorLink.adicionarLink(mercadorias);
-			ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(mercadorias, HttpStatus.FOUND);
-			return resposta;
-		}
-	}
+    @Autowired
+    private MercadoriaSelecionador selecionador;
 
-	@PostMapping("/mercadoria/cadastro")
-	public ResponseEntity<?> cadastrarMercadoria(@RequestBody Mercadoria mercadoria) {
-		HttpStatus status = HttpStatus.CONFLICT;
-		if (mercadoria.getId() == null) {
-			repositorio.save(mercadoria);
-			status = HttpStatus.CREATED;
-		}
-		return new ResponseEntity<>(status);
+    @Autowired
+    private AdicionadorLinkMercadoria adicionadorLink;
 
-	}
+    @GetMapping("/mercadoria/{id}")
+    public ResponseEntity<Mercadoria> obterMercadoria(@PathVariable long id) {
+        List<Mercadoria> mercadorias = repositorio.findAll();
+        Mercadoria mercadoria = selecionador.selecionar(mercadorias, id);
+        if (mercadoria == null) {
+            ResponseEntity<Mercadoria> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return resposta;
+        } else {
+            adicionadorLink.adicionarLink(mercadoria);
+            ResponseEntity<Mercadoria> resposta = new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.FOUND);
+            return resposta;
+        }
+    }
 
-	@PutMapping("/mercadoria/atualizar")
-	public ResponseEntity<?> atualizarMercadoria(@RequestBody Mercadoria atualizacao) {
-		HttpStatus status = HttpStatus.CONFLICT;
-		Mercadoria mercadoria = repositorio.getById(atualizacao.getId());
-		if (mercadoria != null) {
-			MercadoriaAtualizador atualizador = new MercadoriaAtualizador();
-			atualizador.atualizar(mercadoria, atualizacao);
-			repositorio.save(mercadoria);
-			status = HttpStatus.OK;
-		} else {
-			status = HttpStatus.BAD_REQUEST;
-		}
-		return new ResponseEntity<>(status);
-	}
+    @GetMapping("/mercadorias")
+    public ResponseEntity<List<Mercadoria>> obterMercadorias() {
+        List<Mercadoria> mercadorias = repositorio.findAll();
+        if (mercadorias.isEmpty()) {
+            ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return resposta;
+        } else {
+            adicionadorLink.adicionarLink(mercadorias);
+            ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(mercadorias, HttpStatus.FOUND);
+            return resposta;
+        }
+    }
 
-	@DeleteMapping("/mercadoria/excluir")
-	public ResponseEntity<?> excluirMercadoria(@RequestBody Mercadoria exclusao) {
-		HttpStatus status = HttpStatus.BAD_REQUEST;
-		Mercadoria mercadoria = repositorio.getById(exclusao.getId());
-		if (mercadoria != null) {
-			repositorio.delete(mercadoria);
-			status = HttpStatus.OK;
-		}
-		return new ResponseEntity<>(status);
-	}
+    @PostMapping("/mercadoria/cadastro")
+    public ResponseEntity<?> cadastrarMercadoria(@RequestBody Mercadoria mercadoria) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        if (mercadoria.getId() == null) {
+            repositorio.save(mercadoria);
+            status = HttpStatus.CREATED;
+        }
+        return new ResponseEntity<>(status);
+
+    }
+
+    @PutMapping("/mercadoria/atualizar")
+    public ResponseEntity<?> atualizarMercadoria(@RequestBody Mercadoria atualizacao) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        Mercadoria mercadoria = repositorio.getById(atualizacao.getId());
+        if (mercadoria != null) {
+            MercadoriaAtualizador atualizador = new MercadoriaAtualizador();
+            atualizador.atualizar(mercadoria, atualizacao);
+            repositorio.save(mercadoria);
+            status = HttpStatus.OK;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+        return new ResponseEntity<>(status);
+    }
+
+    @DeleteMapping("/mercadoria/excluir")
+    public ResponseEntity<?> excluirMercadoria(@RequestBody Mercadoria exclusao) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        Mercadoria mercadoria = repositorio.getById(exclusao.getId());
+        if (mercadoria != null) {
+            repositorio.delete(mercadoria);
+            status = HttpStatus.OK;
+        }
+        return new ResponseEntity<>(status);
+    }
 }

@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.autobots.automanager.entidades.Veiculo;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
 import com.autobots.automanager.modelos.AdicionadorLinkVeiculo;
 import com.autobots.automanager.modelos.VeiculoAtualizador;
 import com.autobots.automanager.modelos.VeiculoSelecionador;
 import com.autobots.automanager.repositorios.VeiculoRepositorio;
 
+@RestController
 public class VeiculoControle {
 	@Autowired
 	private VeiculoRepositorio repositorio;
@@ -57,8 +60,13 @@ public class VeiculoControle {
 	public ResponseEntity<?> cadastrarVeiculo(@RequestBody Veiculo veiculo) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (veiculo.getId() == null) {
-			repositorio.save(veiculo);
-			status = HttpStatus.CREATED;
+			if (veiculo.getProprietario() != null && veiculo.getProprietario().getPerfis() != null
+					&& veiculo.getProprietario().getPerfis().contains(PerfilUsuario.FORNECEDOR)) {
+				repositorio.save(veiculo);
+				status = HttpStatus.CREATED;
+			} else {
+				status = HttpStatus.FORBIDDEN;
+			}
 		}
 		return new ResponseEntity<>(status);
 
