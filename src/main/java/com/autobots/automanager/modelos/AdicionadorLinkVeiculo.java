@@ -1,14 +1,14 @@
 package com.autobots.automanager.modelos;
 
+import com.autobots.automanager.controles.VeiculoControle;
+import com.autobots.automanager.entidades.Veiculo;
+
 import java.util.List;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-
-import com.autobots.automanager.controles.VeiculoControle;
-import com.autobots.automanager.entidades.Veiculo;
-
 import org.springframework.stereotype.Component;
+
 @Component
 public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 	@Override

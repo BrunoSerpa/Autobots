@@ -1,10 +1,11 @@
 package com.autobots.automanager.modelos;
 
-import java.util.List;
+import org.springframework.stereotype.Component;
 
 import com.autobots.automanager.entidades.Servico;
 
-import org.springframework.stereotype.Component;
+import java.util.List;
+
 @Component
 public class ServicoSelecionador {
 	public Servico selecionar(List<Servico> servicos, long id) {
@@ -15,6 +16,7 @@ public class ServicoSelecionador {
 				break;
 			}
 		}
+
 		return selecionado;
 	}
 }

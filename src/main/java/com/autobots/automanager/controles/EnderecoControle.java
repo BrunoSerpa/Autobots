@@ -1,8 +1,13 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Endereco;
+import com.autobots.automanager.modelos.AdicionadorLink;
+import com.autobots.automanager.modelos.EnderecoAtualizador;
+import com.autobots.automanager.modelos.EnderecoSelecionador;
+import com.autobots.automanager.repositorios.EnderecoRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,51 +17,47 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.modelos.AdicionadorLink;
-import com.autobots.automanager.modelos.EnderecoAtualizador;
-import com.autobots.automanager.modelos.EnderecoSelecionador;
-import com.autobots.automanager.repositorios.EnderecoRepositorio;
 
 @RestController
 @RequestMapping("/endereco")
 public class EnderecoControle {
-	@Autowired
-	private EnderecoRepositorio repositorio;
-	
-	@Autowired
-	private EnderecoSelecionador selecionador;
-	
-	@Autowired
-	private AdicionadorLink<Endereco> adicionadorLink;
-	
-	@GetMapping("/endereco/{id}")
+	private final EnderecoRepositorio repositorio;
+	private final EnderecoSelecionador selecionador;
+	private final AdicionadorLink<Endereco> adicionador;
+
+	public EnderecoControle(EnderecoRepositorio repositorio,
+			EnderecoSelecionador selecionador,
+			AdicionadorLink<Endereco> adicionador) {
+		this.repositorio = repositorio;
+		this.selecionador = selecionador;
+		this.adicionador = adicionador;
+	}
+
+	@GetMapping("/buscar/{id}")
 	public ResponseEntity<Endereco> obterEndereco(@PathVariable long id) {
 		List<Endereco> enderecos = repositorio.findAll();
 		Endereco endereco = selecionador.selecionar(enderecos, id);
 		if (endereco == null) {
 			return new ResponseEntity<Endereco>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(endereco);
+			adicionador.adicionarLink(endereco);
 			return new ResponseEntity<Endereco>(HttpStatus.FOUND);
 		}
 	}
 
-	@GetMapping("/enderecos")
+	@GetMapping("/listar")
 	public ResponseEntity<List<Endereco>> obterEnderecos() {
 		List<Endereco> enderecos = repositorio.findAll();
 		if (enderecos.isEmpty()) {
 			return new ResponseEntity<List<Endereco>>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(enderecos);
+			adicionador.adicionarLink(enderecos);
 			return new ResponseEntity<List<Endereco>>(HttpStatus.FOUND);
 		}
 	}
-	
-	@PostMapping("/cadastro")
+
+	@PostMapping("/cadastrar")
 	public ResponseEntity<?> cadastrarEndereco(@RequestBody Endereco endereco) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (endereco.getId() == null) {
@@ -72,7 +73,7 @@ public class EnderecoControle {
 		Endereco endereco = repositorio.getById(atualizacao.getId());
 		if (endereco != null) {
 			EnderecoAtualizador atualizador = new EnderecoAtualizador();
-			atualizador.atualizar(endereco, atualizacao);	
+			atualizador.atualizar(endereco, atualizacao);
 			repositorio.save(endereco);
 			status = HttpStatus.OK;
 		} else {

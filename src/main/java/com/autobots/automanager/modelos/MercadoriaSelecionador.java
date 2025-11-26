@@ -1,10 +1,10 @@
 package com.autobots.automanager.modelos;
 
+import com.autobots.automanager.entidades.Mercadoria;
+
 import java.util.List;
 
 import org.springframework.stereotype.Component;
-
-import com.autobots.automanager.entidades.Mercadoria;
 
 @Component
 public class MercadoriaSelecionador {

@@ -1,8 +1,13 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Venda;
+import com.autobots.automanager.modelos.AdicionadorLinkVenda;
+import com.autobots.automanager.modelos.VendaAtualizador;
+import com.autobots.automanager.modelos.VendaSelecionador;
+import com.autobots.automanager.repositorios.VendaRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,49 +16,48 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Venda;
-import com.autobots.automanager.modelos.AdicionadorLinkVenda;
-import com.autobots.automanager.modelos.VendaAtualizador;
-import com.autobots.automanager.modelos.VendaSelecionador;
-import com.autobots.automanager.repositorios.VendaRepositorio;
-
+@RestController
+@RequestMapping("/venda")
 public class VendaControle {
-	@Autowired
-	private VendaRepositorio repositorio;
-	@Autowired
-	private VendaSelecionador selecionador;
-	@Autowired
-	private AdicionadorLinkVenda adicionadorLink;
+	private final VendaRepositorio repositorio;
+	private final VendaSelecionador selecionador;
+	private final AdicionadorLinkVenda adicionador;
 
-	@GetMapping("/venda/{id}")
+	public VendaControle(VendaRepositorio repositorio,
+			VendaSelecionador selecionador,
+			AdicionadorLinkVenda adicionador) {
+		this.repositorio = repositorio;
+		this.selecionador = selecionador;
+		this.adicionador = adicionador;
+	}
+
+	@GetMapping("/buscar/{id}")
 	public ResponseEntity<Venda> obterVenda(@PathVariable long id) {
 		List<Venda> vendas = repositorio.findAll();
 		Venda venda = selecionador.selecionar(vendas, id);
 		if (venda == null) {
-			ResponseEntity<Venda> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(venda);
-			ResponseEntity<Venda> resposta = new ResponseEntity<Venda>(venda, HttpStatus.FOUND);
-			return resposta;
+			adicionador.adicionarLink(venda);
+			return new ResponseEntity<>(venda, HttpStatus.FOUND);
 		}
 	}
 
-	@GetMapping("/vendas")
+	@GetMapping("/listar")
 	public ResponseEntity<List<Venda>> obterVendas() {
 		List<Venda> vendas = repositorio.findAll();
 		if (vendas.isEmpty()) {
-			ResponseEntity<List<Venda>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(vendas);
-			ResponseEntity<List<Venda>> resposta = new ResponseEntity<>(vendas, HttpStatus.FOUND);
-			return resposta;
+			adicionador.adicionarLink(vendas);
+			return new ResponseEntity<>(vendas, HttpStatus.FOUND);
 		}
 	}
 
-	@PostMapping("/venda/cadastro")
+	@PostMapping("/cadastrar")
 	public ResponseEntity<?> cadastrarVenda(@RequestBody Venda venda) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (venda.getId() == null) {
@@ -64,7 +68,7 @@ public class VendaControle {
 
 	}
 
-	@PutMapping("/venda/atualizar")
+	@PutMapping("/atualizar")
 	public ResponseEntity<?> atualizarVenda(@RequestBody Venda atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Venda venda = repositorio.getById(atualizacao.getId());
@@ -79,7 +83,7 @@ public class VendaControle {
 		return new ResponseEntity<>(status);
 	}
 
-	@DeleteMapping("/venda/excluir")
+	@DeleteMapping("/excluir")
 	public ResponseEntity<?> excluirVenda(@RequestBody Venda exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Venda venda = repositorio.getById(exclusao.getId());

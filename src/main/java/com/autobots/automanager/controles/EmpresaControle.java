@@ -1,8 +1,13 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Empresa;
+import com.autobots.automanager.modelos.AdicionadorLinkEmpresa;
+import com.autobots.automanager.modelos.EmpresaAtualizador;
+import com.autobots.automanager.modelos.EmpresaSelecionador;
+import com.autobots.automanager.repositorios.EmpresaRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,26 +16,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Empresa;
-import com.autobots.automanager.modelos.AdicionadorLinkEmpresa;
-import com.autobots.automanager.modelos.EmpresaAtualizador;
-import com.autobots.automanager.modelos.EmpresaSelecionador;
-import com.autobots.automanager.repositorios.EmpresaRepositorio;
-
 @RestController
+@RequestMapping("/empresa")
 public class EmpresaControle {
-    @Autowired
-    private EmpresaRepositorio repositorio;
+    private final EmpresaRepositorio repositorio;
+    private final EmpresaSelecionador selecionador;
+    private final AdicionadorLinkEmpresa adicionadorLink;
 
-    @Autowired
-    private EmpresaSelecionador selecionador;
+    public EmpresaControle(EmpresaRepositorio repositorio,
+            EmpresaSelecionador selecionador,
+            AdicionadorLinkEmpresa adicionadorLink) {
+        this.repositorio = repositorio;
+        this.selecionador = selecionador;
+        this.adicionadorLink = adicionadorLink;
+    }
 
-    @Autowired
-    private AdicionadorLinkEmpresa adicionadorLink;
-
-    @GetMapping("/empresa/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<Empresa> obterEmpresa(@PathVariable long id) {
         List<Empresa> empresas = repositorio.findAll();
         Empresa empresa = selecionador.selecionar(empresas, id);
@@ -44,7 +48,7 @@ public class EmpresaControle {
         }
     }
 
-    @GetMapping("/empresas")
+    @GetMapping("/listar")
     public ResponseEntity<List<Empresa>> obterEmpresas() {
         List<Empresa> empresas = repositorio.findAll();
         if (empresas.isEmpty()) {
@@ -57,7 +61,7 @@ public class EmpresaControle {
         }
     }
 
-    @PostMapping("/empresa/cadastro")
+    @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrarEmpresa(@RequestBody Empresa empresa) {
         HttpStatus status = HttpStatus.CONFLICT;
         if (empresa.getId() == null) {
@@ -68,7 +72,7 @@ public class EmpresaControle {
 
     }
 
-    @PutMapping("/empresa/atualizar")
+    @PutMapping("/atualizar")
     public ResponseEntity<?> atualizarEmpresa(@RequestBody Empresa atualizacao) {
         HttpStatus status = HttpStatus.CONFLICT;
         Empresa empresa = repositorio.getById(atualizacao.getId());
@@ -83,7 +87,7 @@ public class EmpresaControle {
         return new ResponseEntity<>(status);
     }
 
-    @DeleteMapping("/empresa/excluir")
+    @DeleteMapping("/excluir")
     public ResponseEntity<?> excluirEmpresa(@RequestBody Empresa exclusao) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         Empresa empresa = repositorio.getById(exclusao.getId());

@@ -1,9 +1,12 @@
 package com.autobots.automanager.modelos;
 
-import java.util.List;
-
 import com.autobots.automanager.entidades.Venda;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+@Component
 public class VendaSelecionador {
 	public Venda selecionar(List<Venda> vendas, long id) {
 		Venda selecionado = null;

@@ -1,8 +1,14 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.modelos.AdicionadorLinkUsuario;
+import com.autobots.automanager.modelos.UsuarioAtualizador;
+import com.autobots.automanager.modelos.UsuarioSelecionador;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,25 +17,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Usuario;
-import com.autobots.automanager.enumeracoes.PerfilUsuario;
-import com.autobots.automanager.modelos.AdicionadorLinkUsuario;
-import com.autobots.automanager.modelos.UsuarioAtualizador;
-import com.autobots.automanager.modelos.UsuarioSelecionador;
-import com.autobots.automanager.repositorios.UsuarioRepositorio;
-
 @RestController
+@RequestMapping("/usuario")
 public class UsuarioControle {
-	@Autowired
-	private UsuarioRepositorio repositorio;
-	@Autowired
-	private UsuarioSelecionador selecionador;
-	@Autowired
-	private AdicionadorLinkUsuario adicionadorLink;
+	private final UsuarioRepositorio repositorio;
+	private final UsuarioSelecionador selecionador;
+	private final AdicionadorLinkUsuario adicionador;
 
-	@GetMapping("/usuario/{id}")
+	public UsuarioControle(
+			UsuarioRepositorio repositorio,
+			UsuarioSelecionador selecionador,
+			AdicionadorLinkUsuario adicionador) {
+		this.repositorio = repositorio;
+		this.selecionador = selecionador;
+		this.adicionador = adicionador;
+	}
+
+	@GetMapping("/buscar/{id}")
 	public ResponseEntity<Usuario> obterUsuario(@PathVariable long id) {
 		List<Usuario> usuarios = repositorio.findAll();
 		Usuario usuario = selecionador.selecionar(usuarios, id);
@@ -37,26 +44,26 @@ public class UsuarioControle {
 			ResponseEntity<Usuario> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			return resposta;
 		} else {
-			adicionadorLink.adicionarLink(usuario);
+			adicionador.adicionarLink(usuario);
 			ResponseEntity<Usuario> resposta = new ResponseEntity<Usuario>(usuario, HttpStatus.FOUND);
 			return resposta;
 		}
 	}
 
-	@GetMapping("/usuarios")
+	@GetMapping("/listar")
 	public ResponseEntity<List<Usuario>> obterUsuarios() {
 		List<Usuario> usuarios = repositorio.findAll();
 		if (usuarios.isEmpty()) {
 			ResponseEntity<List<Usuario>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			return resposta;
 		} else {
-			adicionadorLink.adicionarLink(usuarios);
+			adicionador.adicionarLink(usuarios);
 			ResponseEntity<List<Usuario>> resposta = new ResponseEntity<>(usuarios, HttpStatus.FOUND);
 			return resposta;
 		}
 	}
 
-	@PostMapping("/usuario/cadastro")
+	@PostMapping("/cadastrar")
 	public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (usuario.getId() == null) {
@@ -78,7 +85,7 @@ public class UsuarioControle {
 
 	}
 
-	@PutMapping("/usuario/atualizar")
+	@PutMapping("/atualizar")
 	public ResponseEntity<?> atualizarUsuario(@RequestBody Usuario atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Usuario usuario = repositorio.getById(atualizacao.getId());
@@ -87,7 +94,8 @@ public class UsuarioControle {
 			boolean addingMercadorias = atualizacao.getMercadorias() != null && !atualizacao.getMercadorias().isEmpty();
 			boolean addingVeiculos = atualizacao.getVeiculos() != null && !atualizacao.getVeiculos().isEmpty();
 			if (addingMercadorias || addingVeiculos) {
-				boolean isFornecedor = (atualizacao.getPerfis() != null && atualizacao.getPerfis().contains(PerfilUsuario.FORNECEDOR))
+				boolean isFornecedor = (atualizacao.getPerfis() != null
+						&& atualizacao.getPerfis().contains(PerfilUsuario.FORNECEDOR))
 						|| (usuario.getPerfis() != null && usuario.getPerfis().contains(PerfilUsuario.FORNECEDOR));
 				if (!isFornecedor) {
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -102,7 +110,7 @@ public class UsuarioControle {
 		return new ResponseEntity<>(status);
 	}
 
-	@DeleteMapping("/usuario/excluir")
+	@DeleteMapping("/excluir")
 	public ResponseEntity<?> excluirUsuario(@RequestBody Usuario exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Usuario usuario = repositorio.getById(exclusao.getId());

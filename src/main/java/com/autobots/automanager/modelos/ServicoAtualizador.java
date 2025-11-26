@@ -1,9 +1,8 @@
 package com.autobots.automanager.modelos;
 
-import java.util.Set;
-
 import com.autobots.automanager.entidades.Servico;
 
+import java.util.Set;
 
 public class ServicoAtualizador {
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();

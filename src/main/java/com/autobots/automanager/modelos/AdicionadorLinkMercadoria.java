@@ -1,14 +1,14 @@
 package com.autobots.automanager.modelos;
 
+import com.autobots.automanager.controles.MercadoriaControle;
+import com.autobots.automanager.entidades.Mercadoria;
+
 import java.util.List;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-
-import com.autobots.automanager.controles.MercadoriaControle;
-import com.autobots.automanager.entidades.Mercadoria;
-
 import org.springframework.stereotype.Component;
+
 @Component
 public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria> {
 	@Override

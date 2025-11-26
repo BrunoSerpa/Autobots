@@ -1,8 +1,13 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Mercadoria;
+import com.autobots.automanager.modelos.AdicionadorLinkMercadoria;
+import com.autobots.automanager.modelos.MercadoriaAtualizador;
+import com.autobots.automanager.modelos.MercadoriaSelecionador;
+import com.autobots.automanager.repositorios.MercadoriaRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,26 +16,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Mercadoria;
-import com.autobots.automanager.modelos.AdicionadorLinkMercadoria;
-import com.autobots.automanager.modelos.MercadoriaAtualizador;
-import com.autobots.automanager.modelos.MercadoriaSelecionador;
-import com.autobots.automanager.repositorios.MercadoriaRepositorio;
-
 @RestController
+@RequestMapping("/mercadoria")
 public class MercadoriaControle {
-    @Autowired
-    private MercadoriaRepositorio repositorio;
+    private final MercadoriaRepositorio repositorio;
+    private final MercadoriaSelecionador selecionador;
+    private final AdicionadorLinkMercadoria adicionador;
 
-    @Autowired
-    private MercadoriaSelecionador selecionador;
+    public MercadoriaControle(MercadoriaRepositorio repositorio,
+            MercadoriaSelecionador selecionador,
+            AdicionadorLinkMercadoria adicionador) {
+        this.repositorio = repositorio;
+        this.selecionador = selecionador;
+        this.adicionador = adicionador;
+    }
 
-    @Autowired
-    private AdicionadorLinkMercadoria adicionadorLink;
-
-    @GetMapping("/mercadoria/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<Mercadoria> obterMercadoria(@PathVariable long id) {
         List<Mercadoria> mercadorias = repositorio.findAll();
         Mercadoria mercadoria = selecionador.selecionar(mercadorias, id);
@@ -38,26 +42,26 @@ public class MercadoriaControle {
             ResponseEntity<Mercadoria> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return resposta;
         } else {
-            adicionadorLink.adicionarLink(mercadoria);
+            adicionador.adicionarLink(mercadoria);
             ResponseEntity<Mercadoria> resposta = new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.FOUND);
             return resposta;
         }
     }
 
-    @GetMapping("/mercadorias")
+    @GetMapping("/listar")
     public ResponseEntity<List<Mercadoria>> obterMercadorias() {
         List<Mercadoria> mercadorias = repositorio.findAll();
         if (mercadorias.isEmpty()) {
             ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return resposta;
         } else {
-            adicionadorLink.adicionarLink(mercadorias);
+            adicionador.adicionarLink(mercadorias);
             ResponseEntity<List<Mercadoria>> resposta = new ResponseEntity<>(mercadorias, HttpStatus.FOUND);
             return resposta;
         }
     }
 
-    @PostMapping("/mercadoria/cadastro")
+    @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrarMercadoria(@RequestBody Mercadoria mercadoria) {
         HttpStatus status = HttpStatus.CONFLICT;
         if (mercadoria.getId() == null) {
@@ -68,7 +72,7 @@ public class MercadoriaControle {
 
     }
 
-    @PutMapping("/mercadoria/atualizar")
+    @PutMapping("/atualizar")
     public ResponseEntity<?> atualizarMercadoria(@RequestBody Mercadoria atualizacao) {
         HttpStatus status = HttpStatus.CONFLICT;
         Mercadoria mercadoria = repositorio.getById(atualizacao.getId());
@@ -83,7 +87,7 @@ public class MercadoriaControle {
         return new ResponseEntity<>(status);
     }
 
-    @DeleteMapping("/mercadoria/excluir")
+    @DeleteMapping("/excluir")
     public ResponseEntity<?> excluirMercadoria(@RequestBody Mercadoria exclusao) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         Mercadoria mercadoria = repositorio.getById(exclusao.getId());

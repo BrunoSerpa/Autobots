@@ -1,10 +1,14 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.entidades.Telefone;
+import com.autobots.automanager.modelos.AdicionadorLinkTelefone;
+import com.autobots.automanager.modelos.TelefoneAtualizador;
+import com.autobots.automanager.modelos.TelefoneSelecionador;
+import com.autobots.automanager.repositorios.TelefoneRepositorio;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,48 +19,45 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.modelos.AdicionadorLinkTelefone;
-import com.autobots.automanager.modelos.TelefoneAtualizador;
-import com.autobots.automanager.modelos.TelefoneSelecionador;
-import com.autobots.automanager.repositorios.TelefoneRepositorio;
-
 @RestController
 @RequestMapping("/telefone")
 public class TelefoneControle {
-	@Autowired
-	private TelefoneRepositorio repositorio;
-	
-	@Autowired
-	private TelefoneSelecionador selecionador;
-	
-	@Autowired
-	private AdicionadorLinkTelefone adicionadorLink;
-	
-	@GetMapping("/telefone/{id}")
+	private final TelefoneRepositorio repositorio;
+	private final TelefoneSelecionador selecionador;
+	private final AdicionadorLinkTelefone adicionador;
+
+	public TelefoneControle(TelefoneRepositorio repositorio,
+			TelefoneSelecionador selecionador,
+			AdicionadorLinkTelefone adicionador) {
+		this.repositorio = repositorio;
+		this.selecionador = selecionador;
+		this.adicionador = adicionador;
+	}
+
+	@GetMapping("/buscar/{id}")
 	public ResponseEntity<Telefone> obterTelefone(@PathVariable long id) {
 		List<Telefone> telefones = repositorio.findAll();
 		Telefone telefone = selecionador.selecionar(telefones, id);
 		if (telefone == null) {
 			return new ResponseEntity<Telefone>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(telefone);
+			adicionador.adicionarLink(telefone);
 			return new ResponseEntity<Telefone>(HttpStatus.FOUND);
 		}
 	}
 
-	@GetMapping("/telefones")
+	@GetMapping("/listar")
 	public ResponseEntity<List<Telefone>> obterTelefones() {
 		List<Telefone> telefones = repositorio.findAll();
 		if (telefones.isEmpty()) {
 			return new ResponseEntity<List<Telefone>>(HttpStatus.NOT_FOUND);
 		} else {
-			adicionadorLink.adicionarLink(telefones);
+			adicionador.adicionarLink(telefones);
 			return new ResponseEntity<List<Telefone>>(telefones, HttpStatus.FOUND);
 		}
 	}
-	
-	@PostMapping("/cadastro")
+
+	@PostMapping("/cadastrar")
 	public ResponseEntity<?> cadastrarTelefone(@RequestBody Telefone telefone) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (telefone.getId() == null) {

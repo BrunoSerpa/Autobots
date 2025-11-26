@@ -1,8 +1,13 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.repositorios.ServicoRepositorio;
+import com.autobots.automanager.entidades.Servico;
+import com.autobots.automanager.modelos.AdicionadorLinkServico;
+import com.autobots.automanager.modelos.ServicoAtualizador;
+import com.autobots.automanager.modelos.ServicoSelecionador;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,22 +16,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.repositorios.ServicoRepositorio;
-import com.autobots.automanager.entidades.Servico;
-import com.autobots.automanager.modelos.AdicionadorLinkServico;
-import com.autobots.automanager.modelos.ServicoAtualizador;
-import com.autobots.automanager.modelos.ServicoSelecionador;
-
+@RestController
+@RequestMapping("/servico")
 public class ServicoControle {
-	@Autowired
-	private ServicoRepositorio repositorio;
-	@Autowired
-	private ServicoSelecionador selecionador;
-	@Autowired
-	private AdicionadorLinkServico adicionadorLink;
+	private final ServicoRepositorio repositorio;
+	private final ServicoSelecionador selecionador;
+	private final AdicionadorLinkServico adicionador;
 
-	@GetMapping("/servico/{id}")
+	public ServicoControle(ServicoRepositorio repositorio,
+			ServicoSelecionador selecionador,
+			AdicionadorLinkServico adicionador) {
+		this.repositorio = repositorio;
+		this.selecionador = selecionador;
+		this.adicionador = adicionador;
+	}
+
+	@GetMapping("/{id}")
 	public ResponseEntity<Servico> obterServico(@PathVariable long id) {
 		List<Servico> servicos = repositorio.findAll();
 		Servico servico = selecionador.selecionar(servicos, id);
@@ -34,26 +42,26 @@ public class ServicoControle {
 			ResponseEntity<Servico> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			return resposta;
 		} else {
-			adicionadorLink.adicionarLink(servico);
+			adicionador.adicionarLink(servico);
 			ResponseEntity<Servico> resposta = new ResponseEntity<Servico>(servico, HttpStatus.FOUND);
 			return resposta;
 		}
 	}
 
-	@GetMapping("/servicos")
+	@GetMapping("/listar")
 	public ResponseEntity<List<Servico>> obterServicos() {
 		List<Servico> servicos = repositorio.findAll();
 		if (servicos.isEmpty()) {
 			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			return resposta;
 		} else {
-			adicionadorLink.adicionarLink(servicos);
+			adicionador.adicionarLink(servicos);
 			ResponseEntity<List<Servico>> resposta = new ResponseEntity<>(servicos, HttpStatus.FOUND);
 			return resposta;
 		}
 	}
 
-	@PostMapping("/servico/cadastro")
+	@PostMapping("/cadastrar")
 	public ResponseEntity<?> cadastrarServico(@RequestBody Servico servico) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (servico.getId() == null) {
@@ -64,7 +72,7 @@ public class ServicoControle {
 
 	}
 
-	@PutMapping("/servico/atualizar")
+	@PutMapping("/atualizar")
 	public ResponseEntity<?> atualizarServico(@RequestBody Servico atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Servico servico = repositorio.getById(atualizacao.getId());
@@ -79,7 +87,7 @@ public class ServicoControle {
 		return new ResponseEntity<>(status);
 	}
 
-	@DeleteMapping("/servico/excluir")
+	@DeleteMapping("/excluir")
 	public ResponseEntity<?> excluirServico(@RequestBody Servico exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Servico servico = repositorio.getById(exclusao.getId());

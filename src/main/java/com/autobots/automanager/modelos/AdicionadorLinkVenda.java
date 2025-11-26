@@ -1,14 +1,14 @@
 package com.autobots.automanager.modelos;
 
+import com.autobots.automanager.controles.VendaControle;
+import com.autobots.automanager.entidades.Venda;
+
 import java.util.List;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-
-import com.autobots.automanager.controles.VendaControle;
-import com.autobots.automanager.entidades.Venda;
-
 import org.springframework.stereotype.Component;
+
 @Component
 public class AdicionadorLinkVenda implements AdicionadorLink<Venda> {
 	@Override
