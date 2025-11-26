@@ -62,7 +62,7 @@ public class ServicoControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarServico(@RequestBody Servico servico) {
+	public ResponseEntity<Void> cadastrarServico(@RequestBody Servico servico) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (servico.getId() == null) {
 			repositorio.save(servico);
@@ -73,7 +73,7 @@ public class ServicoControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarServico(@RequestBody Servico atualizacao) {
+	public ResponseEntity<Void> atualizarServico(@RequestBody Servico atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Servico servico = repositorio.getById(atualizacao.getId());
 		if (servico != null) {
@@ -88,7 +88,7 @@ public class ServicoControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirServico(@RequestBody Servico exclusao) {
+	public ResponseEntity<Void> excluirServico(@RequestBody Servico exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Servico servico = repositorio.getById(exclusao.getId());
 		if (servico != null) {

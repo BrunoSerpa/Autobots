@@ -58,7 +58,7 @@ public class TelefoneControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarTelefone(@RequestBody Telefone telefone) {
+	public ResponseEntity<Void> cadastrarTelefone(@RequestBody Telefone telefone) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (telefone.getId() == null) {
 			repositorio.save(telefone);
@@ -68,7 +68,7 @@ public class TelefoneControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarTelefone(@RequestBody Telefone atualizacao) {
+	public ResponseEntity<Void> atualizarTelefone(@RequestBody Telefone atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Telefone telefone = repositorio.getById(atualizacao.getId());
 		if (telefone != null) {
@@ -83,7 +83,7 @@ public class TelefoneControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirTelefone(@RequestBody Telefone exclusao) {
+	public ResponseEntity<Void> excluirTelefone(@RequestBody Telefone exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Telefone telefone = repositorio.getById(exclusao.getId());
 		if (telefone != null) {

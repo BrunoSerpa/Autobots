@@ -63,7 +63,7 @@ public class VeiculoControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarVeiculo(@RequestBody Veiculo veiculo) {
+	public ResponseEntity<Void> cadastrarVeiculo(@RequestBody Veiculo veiculo) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (veiculo.getId() == null) {
 			if (veiculo.getProprietario() != null && veiculo.getProprietario().getPerfis() != null
@@ -79,7 +79,7 @@ public class VeiculoControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarVeiculo(@RequestBody Veiculo atualizacao) {
+	public ResponseEntity<Void> atualizarVeiculo(@RequestBody Veiculo atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Veiculo veiculo = repositorio.getById(atualizacao.getId());
 		if (veiculo != null) {
@@ -94,7 +94,7 @@ public class VeiculoControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirVeiculo(@RequestBody Veiculo exclusao) {
+	public ResponseEntity<Void> excluirVeiculo(@RequestBody Veiculo exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Veiculo veiculo = repositorio.getById(exclusao.getId());
 		if (veiculo != null) {

@@ -62,7 +62,7 @@ public class EmpresaControle {
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrarEmpresa(@RequestBody Empresa empresa) {
+    public ResponseEntity<Void> cadastrarEmpresa(@RequestBody Empresa empresa) {
         HttpStatus status = HttpStatus.CONFLICT;
         if (empresa.getId() == null) {
             repositorio.save(empresa);
@@ -73,7 +73,7 @@ public class EmpresaControle {
     }
 
     @PutMapping("/atualizar")
-    public ResponseEntity<?> atualizarEmpresa(@RequestBody Empresa atualizacao) {
+    public ResponseEntity<Void> atualizarEmpresa(@RequestBody Empresa atualizacao) {
         HttpStatus status = HttpStatus.CONFLICT;
         Empresa empresa = repositorio.getById(atualizacao.getId());
         if (empresa != null) {
@@ -88,7 +88,7 @@ public class EmpresaControle {
     }
 
     @DeleteMapping("/excluir")
-    public ResponseEntity<?> excluirEmpresa(@RequestBody Empresa exclusao) {
+    public ResponseEntity<Void> excluirEmpresa(@RequestBody Empresa exclusao) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         Empresa empresa = repositorio.getById(exclusao.getId());
         if (empresa != null) {

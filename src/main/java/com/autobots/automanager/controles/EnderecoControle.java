@@ -58,7 +58,7 @@ public class EnderecoControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarEndereco(@RequestBody Endereco endereco) {
+	public ResponseEntity<Void> cadastrarEndereco(@RequestBody Endereco endereco) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (endereco.getId() == null) {
 			repositorio.save(endereco);
@@ -68,7 +68,7 @@ public class EnderecoControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarEndereco(@RequestBody Endereco atualizacao) {
+	public ResponseEntity<Void> atualizarEndereco(@RequestBody Endereco atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Endereco endereco = repositorio.getById(atualizacao.getId());
 		if (endereco != null) {
@@ -83,7 +83,7 @@ public class EnderecoControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirEndereco(@RequestBody Endereco exclusao) {
+	public ResponseEntity<Void> excluirEndereco(@RequestBody Endereco exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Endereco endereco = repositorio.getById(exclusao.getId());
 		if (endereco != null) {

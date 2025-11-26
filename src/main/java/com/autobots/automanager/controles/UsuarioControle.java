@@ -64,7 +64,7 @@ public class UsuarioControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
+	public ResponseEntity<Void> cadastrarUsuario(@RequestBody Usuario usuario) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (usuario.getId() == null) {
 			boolean hasMercadorias = usuario.getMercadorias() != null && !usuario.getMercadorias().isEmpty();
@@ -86,7 +86,7 @@ public class UsuarioControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarUsuario(@RequestBody Usuario atualizacao) {
+	public ResponseEntity<Void> atualizarUsuario(@RequestBody Usuario atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Usuario usuario = repositorio.getById(atualizacao.getId());
 		if (usuario != null) {
@@ -111,7 +111,7 @@ public class UsuarioControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirUsuario(@RequestBody Usuario exclusao) {
+	public ResponseEntity<Void> excluirUsuario(@RequestBody Usuario exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Usuario usuario = repositorio.getById(exclusao.getId());
 		if (usuario != null) {

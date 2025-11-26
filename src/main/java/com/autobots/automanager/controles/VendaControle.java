@@ -58,7 +58,7 @@ public class VendaControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarVenda(@RequestBody Venda venda) {
+	public ResponseEntity<Void> cadastrarVenda(@RequestBody Venda venda) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (venda.getId() == null) {
 			repositorio.save(venda);
@@ -69,7 +69,7 @@ public class VendaControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarVenda(@RequestBody Venda atualizacao) {
+	public ResponseEntity<Void> atualizarVenda(@RequestBody Venda atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Venda venda = repositorio.getById(atualizacao.getId());
 		if (venda != null) {
@@ -84,7 +84,7 @@ public class VendaControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirVenda(@RequestBody Venda exclusao) {
+	public ResponseEntity<Void> excluirVenda(@RequestBody Venda exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Venda venda = repositorio.getById(exclusao.getId());
 		if (venda != null) {

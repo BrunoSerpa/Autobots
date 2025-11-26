@@ -59,7 +59,7 @@ public class DocumentoControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarDocumento(@RequestBody Documento documento) {
+	public ResponseEntity<Void> cadastrarDocumento(@RequestBody Documento documento) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (documento.getId() == null) {
 			repositorio.save(documento);
@@ -69,7 +69,7 @@ public class DocumentoControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarDocumento(@RequestBody Documento atualizacao) {
+	public ResponseEntity<Void> atualizarDocumento(@RequestBody Documento atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Documento documento = repositorio.getById(atualizacao.getId());
 		if (documento != null) {
@@ -84,7 +84,7 @@ public class DocumentoControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirDocumento(@RequestBody Documento exclusao) {
+	public ResponseEntity<Void> excluirDocumento(@RequestBody Documento exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Documento documento = repositorio.getById(exclusao.getId());
 		if (documento != null) {

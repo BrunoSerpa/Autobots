@@ -62,7 +62,7 @@ public class EmailControle {
 	}
 
 	@PostMapping("/cadastrar")
-	public ResponseEntity<?> cadastrarEmail(@RequestBody Email email) {
+	public ResponseEntity<Void> cadastrarEmail(@RequestBody Email email) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		if (email.getId() == null) {
 			repositorio.save(email);
@@ -73,7 +73,7 @@ public class EmailControle {
 	}
 
 	@PutMapping("/atualizar")
-	public ResponseEntity<?> atualizarEmail(@RequestBody Email atualizacao) {
+	public ResponseEntity<Void> atualizarEmail(@RequestBody Email atualizacao) {
 		HttpStatus status = HttpStatus.CONFLICT;
 		Email email = repositorio.getById(atualizacao.getId());
 		if (email != null) {
@@ -88,7 +88,7 @@ public class EmailControle {
 	}
 
 	@DeleteMapping("/excluir")
-	public ResponseEntity<?> excluirEmail(@RequestBody Email exclusao) {
+	public ResponseEntity<Void> excluirEmail(@RequestBody Email exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Email email = repositorio.getById(exclusao.getId());
 		if (email != null) {

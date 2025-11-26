@@ -62,7 +62,7 @@ public class MercadoriaControle {
     }
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrarMercadoria(@RequestBody Mercadoria mercadoria) {
+    public ResponseEntity<Void> cadastrarMercadoria(@RequestBody Mercadoria mercadoria) {
         HttpStatus status = HttpStatus.CONFLICT;
         if (mercadoria.getId() == null) {
             repositorio.save(mercadoria);
@@ -73,7 +73,7 @@ public class MercadoriaControle {
     }
 
     @PutMapping("/atualizar")
-    public ResponseEntity<?> atualizarMercadoria(@RequestBody Mercadoria atualizacao) {
+    public ResponseEntity<Void> atualizarMercadoria(@RequestBody Mercadoria atualizacao) {
         HttpStatus status = HttpStatus.CONFLICT;
         Mercadoria mercadoria = repositorio.getById(atualizacao.getId());
         if (mercadoria != null) {
@@ -88,7 +88,7 @@ public class MercadoriaControle {
     }
 
     @DeleteMapping("/excluir")
-    public ResponseEntity<?> excluirMercadoria(@RequestBody Mercadoria exclusao) {
+    public ResponseEntity<Void> excluirMercadoria(@RequestBody Mercadoria exclusao) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         Mercadoria mercadoria = repositorio.getById(exclusao.getId());
         if (mercadoria != null) {
