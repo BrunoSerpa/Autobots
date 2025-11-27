@@ -30,10 +30,8 @@ public class VeiculoAtualizador {
 	public void atualizar(Set<Veiculo> veiculos, Set<Veiculo> atualizacoes) {
 		for (Veiculo atualizacao : atualizacoes) {
 			for (Veiculo veiculo : veiculos) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == veiculo.getId()) {
-						atualizar(veiculo, atualizacao);
-					}
+				if (atualizacao.getId() != null && atualizacao.getId() == veiculo.getId()) {
+					atualizar(veiculo, atualizacao);
 				}
 			}
 		}

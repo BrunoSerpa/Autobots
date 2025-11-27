@@ -36,10 +36,8 @@ public class VendaAtualizador {
 	public void atualizar(Set<Venda> vendas, Set<Venda> atualizacoes) {
 		for (Venda atualizacao : atualizacoes) {
 			for (Venda venda : vendas) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == venda.getId()) {
-						atualizar(venda, atualizacao);
-					}
+				if (atualizacao.getId() != null && atualizacao.getId() == venda.getId()) {
+					atualizar(venda, atualizacao);
 				}
 			}
 		}
