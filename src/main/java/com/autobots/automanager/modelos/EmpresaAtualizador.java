@@ -6,6 +6,8 @@ import com.autobots.automanager.entidades.Servico;
 import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Venda;
 
+import java.util.Set;
+
 public class EmpresaAtualizador {
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();
 	private EnderecoAtualizador enderecoAtualizador = new EnderecoAtualizador();
@@ -28,44 +30,48 @@ public class EmpresaAtualizador {
 		atualizarDados(empresa, atualizacao);
 		enderecoAtualizador.atualizar(empresa.getEndereco(), atualizacao.getEndereco());
 		telefoneAtualizador.atualizar(empresa.getTelefones(), atualizacao.getTelefones());
-		
-		// atualizar usuarios
-		for (Usuario usuarioAtualizacao : atualizacao.getUsuarios()) {
-			for (Usuario usuario : empresa.getUsuarios()) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == usuario.getId()) {
-						usuarioAtualizador.atualizar(usuario, usuarioAtualizacao);
-					}
-				}
-			}
-		}
-		
-		for (Mercadoria mercadoriaAtualizacao : atualizacao.getMercadorias()) {
-			for (Mercadoria mercadoria : empresa.getMercadorias()) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == mercadoria.getId()) {
-						mercadoriaAtualizador.atualizar(mercadoria, mercadoriaAtualizacao);
-					}
-				}
-			}
-		}
 
-		for (Servico servicoAtualizacao : atualizacao.getServicos()) {
-			for (Servico servico: empresa.getServicos()) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == servico.getId()) {
-						servicoAtualizador.atualizar(servico, servicoAtualizacao);
-					}
+		atualizarUsuarios(empresa.getUsuarios(), atualizacao.getUsuarios());
+		atualizarMercadorias(empresa.getMercadorias(), atualizacao.getMercadorias());
+		atualizarServicos(empresa.getServicos(), atualizacao.getServicos());
+		atualizarVendas(empresa.getVendas(), atualizacao.getVendas());
+	}
+
+	private void atualizarUsuarios(Set<Usuario> originais, Set<Usuario> atualizacoes) {
+		for (Usuario uAtualizacao : atualizacoes) {
+			for (Usuario uOriginal : originais) {
+				if (uAtualizacao.getId() != null && uAtualizacao.getId().equals(uOriginal.getId())) {
+					usuarioAtualizador.atualizar(uOriginal, uAtualizacao);
 				}
 			}
 		}
-		
-		for (Venda vendaAtualizacao : atualizacao.getVendas()) {
-			for (Venda venda : empresa.getVendas()) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == venda.getId()) {
-						vendaAtualizador.atualizar(venda, vendaAtualizacao);
-					}
+	}
+
+	private void atualizarMercadorias(Set<Mercadoria> originais, Set<Mercadoria> atualizacoes) {
+		for (Mercadoria mAtualizacao : atualizacoes) {
+			for (Mercadoria mOriginal : originais) {
+				if (mAtualizacao.getId() != null && mAtualizacao.getId().equals(mOriginal.getId())) {
+					mercadoriaAtualizador.atualizar(mOriginal, mAtualizacao);
+				}
+			}
+		}
+	}
+
+	private void atualizarServicos(Set<Servico> originais, Set<Servico> atualizacoes) {
+		for (Servico sAtualizacao : atualizacoes) {
+			for (Servico sOriginal : originais) {
+				if (sAtualizacao.getId() != null && sAtualizacao.getId().equals(sOriginal.getId())) {
+					servicoAtualizador.atualizar(sOriginal, sAtualizacao);
+				}
+			}
+		}
+	}
+
+	private void atualizarVendas(Set<Venda> originais, Set<Venda> atualizacoes) {
+		for (Venda vAtualizacao : atualizacoes) {
+			for (Venda vOriginal : originais) {
+				if (vAtualizacao.getId() != null && vAtualizacao.getId().equals(vOriginal.getId())) {
+					vendaAtualizador.atualizar(vOriginal, vAtualizacao);
 				}
 			}
 		}

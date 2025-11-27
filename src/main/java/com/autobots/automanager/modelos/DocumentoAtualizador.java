@@ -19,8 +19,7 @@ public class DocumentoAtualizador {
 	public void atualizar(Set<Documento> documentos, Set<Documento> atualizacoes) {
 		for (Documento atualizacao : atualizacoes) {
 			for (Documento documento : documentos) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == documento.getId()) {
+				if (atualizacao.getId() != null && atualizacao.getId() == documento.getId()) {
 						atualizar(documento, atualizacao);
 					}
 				}
