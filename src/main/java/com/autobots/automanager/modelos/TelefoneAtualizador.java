@@ -21,10 +21,8 @@ public class TelefoneAtualizador {
 	public void atualizar(Set<Telefone> telefones, Set<Telefone> atualizacoes) {
 		for (Telefone atualizacao : atualizacoes) {
 			for (Telefone telefone : telefones) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == telefone.getId()) {
-						atualizar(telefone, atualizacao);
-					}
+				if (atualizacao.getId() != null && atualizacao.getId() == telefone.getId()) {
+					atualizar(telefone, atualizacao);
 				}
 			}
 		}

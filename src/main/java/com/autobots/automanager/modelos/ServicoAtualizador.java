@@ -22,8 +22,7 @@ public class ServicoAtualizador {
 	public void atualizar(Set<Servico> servicos, Set<Servico> atualizacoes) {
 		for (Servico atualizacao : atualizacoes) {
 			for (Servico servico : servicos) {
-				if (atualizacao.getId() != null) {
-					if (atualizacao.getId() == servico.getId()) {
+				if (atualizacao.getId() != null && atualizacao.getId() == servico.getId()) {
 						atualizar(servico, atualizacao);
 					}
 				}
